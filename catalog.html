@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library catalog — GJ Library</title>
+  <script src="js/theme-init.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+  <header class="site-header">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">GJ</span>
+      GJ Library
+    </a>
+    <div class="site-header-right">
+      <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#explore-books">Explore books</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#services">Services</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+          <li><a href="catalog.html" class="active">Catalog</a></li>
+          <li data-gj-staff-only hidden><a href="students.html">Students</a></li>
+        </ul>
+      </nav>
+      <div class="theme-switcher" role="group" aria-label="Color theme">
+        <button type="button" class="theme-btn" data-theme-pref="light" aria-pressed="false" aria-label="Light theme" title="Light mode">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" class="theme-btn" data-theme-pref="dark" aria-pressed="false" aria-label="Dark theme" title="Dark mode">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button type="button" class="theme-btn" data-theme-pref="system" aria-pressed="false" aria-label="Use system theme" title="Match system setting">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </button>
+      </div>
+      <div class="profile-menu-wrap">
+        <button type="button" class="profile-menu-trigger" id="profile-menu-trigger" aria-expanded="false" aria-haspopup="true">
+          <span class="header-profile-avatar" id="profile-avatar">
+            <img id="profile-avatar-img" alt="" width="36" height="36" hidden>
+            <span id="profile-avatar-initials">G</span>
+          </span>
+          <span class="profile-menu-trigger-label" id="profile-display-name">Guest</span>
+        </button>
+        <div class="profile-dropdown" id="profile-dropdown" hidden role="menu">
+          <p class="profile-dropdown-email" id="profile-dropdown-email">Not signed in</p>
+          <button type="button" class="profile-dropdown-item" id="profile-dropdown-edit" role="menuitem">Edit profile…</button>
+          <a href="catalog.html" class="profile-dropdown-item" id="profile-dropdown-catalog-link" role="menuitem" hidden>Library catalog</a>
+          <a href="students.html" class="profile-dropdown-item" id="profile-dropdown-students-link" role="menuitem" data-gj-staff-only hidden>Manage students</a>
+          <div id="profile-dropdown-signin" class="profile-dropdown-actions">
+            <a href="auth.html?portal=student" class="btn btn-primary btn-block btn-sm">Student sign in</a>
+            <a href="auth.html?portal=staff" class="btn btn-ghost btn-block btn-sm" style="margin-top:0.35rem">Staff sign in</a>
+          </div>
+          <div id="profile-dropdown-signout" class="profile-dropdown-actions" hidden>
+            <button type="button" class="btn btn-ghost btn-block btn-sm" id="btn-profile-sign-out">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <h1 class="page-title">Library catalog</h1>
+    <p class="page-sub">Anyone can browse holdings. Students can open a title to buy or request it; library staff see extra tools to manage records after staff sign-in.</p>
+    <p id="catalog-load-status" class="page-sub" style="margin-top:-1rem;font-size:0.9rem;"></p>
+
+    <div class="toolbar" id="catalog-toolbar-staff" hidden>
+      <button type="button" class="btn btn-primary" id="btn-open-add-book">Add book</button>
+      <button type="button" class="btn btn-ghost" id="btn-reload-catalog" title="Reload list">Reload</button>
+      <button type="button" class="btn btn-ghost btn-danger" id="btn-delete-all-books" title="Permanently remove every catalog row">
+        Delete all books
+      </button>
+    </div>
+
+    <div class="modal-backdrop" id="add-book-modal" role="dialog" aria-modal="true" aria-labelledby="add-book-title" hidden>
+      <div class="modal">
+        <h2 id="add-book-title">Add book</h2>
+        <form id="book-form" novalidate>
+          <div class="form-field">
+            <label for="book-title">Title</label>
+            <input type="text" id="book-title" name="title" required autocomplete="off" placeholder="e.g. Wings of Fire">
+          </div>
+          <div class="form-field">
+            <label for="book-author">Author</label>
+            <input type="text" id="book-author" name="author" required autocomplete="off" placeholder="e.g. A. P. J. Abdul Kalam">
+          </div>
+          <div class="form-field">
+            <label for="book-cover">Cover image (optional)</label>
+            <input type="file" id="book-cover" accept="image/jpeg,image/png,image/webp">
+          </div>
+          <p class="page-sub" style="margin:0 0 0.5rem;font-size:0.8rem;">JPEG, PNG, or WebP, max 5 MB. Storage bucket <code>book-covers</code> must exist (see <code>supabase/setup.sql</code>). ISBN, year, and status can be set after save.</p>
+          <div class="form-error" id="book-form-error" hidden></div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="btn-cancel-add-book">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-book">Save book</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="book-detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-book-title" hidden>
+      <div class="modal modal-wide">
+        <h2 id="detail-book-title">Book details</h2>
+        <p class="detail-meta" id="detail-meta"></p>
+        <div class="form-error" id="detail-form-error" hidden></div>
+        <form id="detail-form" novalidate>
+          <div class="form-field detail-cover-block" id="detail-cover-staff-block">
+            <label>Cover</label>
+            <div class="detail-cover-row">
+              <img id="detail-cover-preview" class="detail-cover-preview" alt="" width="120" height="168" hidden>
+              <div class="detail-cover-fields">
+                <input type="file" id="detail-cover" accept="image/jpeg,image/png,image/webp">
+                <label class="detail-cover-clear-label">
+                  <input type="checkbox" id="detail-cover-clear"> Remove cover image
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="form-field detail-cover-block" id="detail-cover-readonly-block" hidden>
+            <label>Cover</label>
+            <div class="detail-cover-row">
+              <img id="detail-cover-preview-readonly" class="detail-cover-preview" alt="" width="120" height="168" hidden>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="detail-title">Title</label>
+            <input type="text" id="detail-title" autocomplete="off">
+          </div>
+          <div class="form-field">
+            <label for="detail-author">Author</label>
+            <input type="text" id="detail-author" autocomplete="off">
+          </div>
+          <div class="form-field" id="detail-isbn-wrap" hidden>
+            <label for="detail-isbn">ISBN</label>
+            <input type="text" id="detail-isbn" placeholder="978-…" autocomplete="off">
+          </div>
+          <div class="form-field" id="detail-shelf-wrap" hidden>
+            <label for="detail-shelf">Shelf / location</label>
+            <input type="text" id="detail-shelf" placeholder="e.g. Stack A-12">
+          </div>
+          <div class="form-field" id="detail-year-wrap" hidden>
+            <label for="detail-year">Publication year</label>
+            <input type="number" id="detail-year" min="1000" max="2100" step="1" placeholder="e.g. 2018">
+          </div>
+          <div class="form-field" id="detail-status-wrap" hidden>
+            <label for="detail-status">Status</label>
+            <select id="detail-status">
+              <option value="available">Available</option>
+              <option value="on_loan">On loan</option>
+              <option value="reference">Reference only</option>
+              <option value="lost">Lost</option>
+              <option value="repair">In repair</option>
+            </select>
+          </div>
+          <div class="form-actions" id="detail-staff-actions" style="justify-content: space-between; flex-wrap: wrap;">
+            <button type="button" class="btn btn-ghost btn-danger" id="btn-delete-book">Remove from catalog</button>
+            <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-ghost" id="btn-close-detail">Close</button>
+              <button type="submit" class="btn btn-primary" id="btn-update-book">Save changes</button>
+            </div>
+          </div>
+          <div class="form-actions" id="detail-guest-actions" hidden style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
+            <p class="page-sub" style="margin:0;font-size:0.9rem;">Staff accounts can edit this record. Everyone can use Buy to request this title.</p>
+            <div style="display: flex; gap: 0.65rem; flex-wrap: wrap; justify-content: flex-end;">
+              <button type="button" class="btn btn-ghost" id="btn-close-detail-guest">Close</button>
+              <button type="button" class="btn btn-primary" id="btn-detail-buy">Buy this book</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Cover</th>
+            <th>Accession</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>ISBN</th>
+            <th>Shelf</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="book-rows">
+          <tr>
+            <td colspan="7">Loading catalog…</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div><strong>GJ Library</strong> · Rambagh, Bihta, Patna</div>
+    <div><a href="index.html">Home</a></div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth-app-role.js"></script>
+  <script src="js/header-profile.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/sign-in-required-dialog.js"></script>
+  <script src="js/books.js"></script>
+</body>
+</html>

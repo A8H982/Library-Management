@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GJ Library — lending, reading room, and digital resources at Rambagh, Bihta, Patna.">
+  <title>GJ Library — Rambagh, Bihta, Patna</title>
+  <script src="js/theme-init.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="page-home page-library">
+  <header class="site-header">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">GJ</span>
+      GJ Library
+    </a>
+    <div class="site-header-right">
+      <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="#explore-books">Explore books</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="catalog.html">Catalog</a></li>
+          <li data-gj-staff-only hidden><a href="students.html">Students</a></li>
+        </ul>
+      </nav>
+      <div class="theme-switcher" role="group" aria-label="Color theme">
+        <button type="button" class="theme-btn" data-theme-pref="light" aria-pressed="false" aria-label="Light theme" title="Light mode">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" class="theme-btn" data-theme-pref="dark" aria-pressed="false" aria-label="Dark theme" title="Dark mode">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button type="button" class="theme-btn" data-theme-pref="system" aria-pressed="false" aria-label="Use system theme" title="Match system setting">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </button>
+      </div>
+      <div class="profile-menu-wrap">
+        <button type="button" class="profile-menu-trigger" id="profile-menu-trigger" aria-expanded="false" aria-haspopup="true">
+          <span class="header-profile-avatar" id="profile-avatar">
+            <img id="profile-avatar-img" alt="" width="36" height="36" hidden>
+            <span id="profile-avatar-initials">G</span>
+          </span>
+          <span class="profile-menu-trigger-label" id="profile-display-name">Guest</span>
+        </button>
+        <div class="profile-dropdown" id="profile-dropdown" hidden role="menu">
+          <p class="profile-dropdown-email" id="profile-dropdown-email">Not signed in</p>
+          <button type="button" class="profile-dropdown-item" id="profile-dropdown-edit" role="menuitem">Edit profile…</button>
+          <a href="catalog.html" class="profile-dropdown-item" id="profile-dropdown-catalog-link" role="menuitem" hidden>Library catalog</a>
+          <a href="students.html" class="profile-dropdown-item" id="profile-dropdown-students-link" role="menuitem" data-gj-staff-only hidden>Manage students</a>
+          <div id="profile-dropdown-signin" class="profile-dropdown-actions">
+            <a href="auth.html?portal=student" class="btn btn-primary btn-block btn-sm">Student sign in</a>
+            <a href="auth.html?portal=staff" class="btn btn-ghost btn-block btn-sm" style="margin-top:0.35rem">Staff sign in</a>
+          </div>
+          <div id="profile-dropdown-signout" class="profile-dropdown-actions" hidden>
+            <button type="button" class="btn btn-ghost btn-block btn-sm" id="btn-profile-sign-out">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="home-hero" aria-labelledby="home-hero-title">
+      <h1 id="home-hero-title" class="home-hero-title">GJ Library</h1>
+      <p class="home-hero-lead">Your campus hub for books, quiet study, and trusted information services at GJ College.</p>
+      <p class="home-hero-location">Rambagh · Bihta · Patna</p>
+      <div class="home-hero-actions">
+        <a href="auth.html?portal=student" class="btn btn-primary">Student sign in</a>
+        <a href="auth.html?portal=staff" class="btn btn-ghost">Staff sign in</a>
+        <a href="catalog.html" class="btn btn-ghost">Browse catalog</a>
+      </div>
+    </section>
+
+    <section id="explore-books" class="home-section home-explore-books">
+      <h2 class="home-section-title">Explore books</h2>
+      <p class="home-section-text" style="margin-bottom: 1.25rem;">A selection from our catalog. Cover images are stored in Supabase Storage; details come from the library database.</p>
+      <p id="explore-books-status" class="page-sub" style="margin-top: -0.5rem; font-size: 0.9rem"></p>
+      <div id="explore-books-grid" class="explore-books-grid"></div>
+    </section>
+
+    <section id="about" class="home-section">
+      <h2 class="home-section-title">About the library</h2>
+      <p class="home-section-text">
+        The library supports students and faculty with lending, a reading room, and reference collections in arts, sciences, and regional studies.
+        Staff maintain the catalog, track copies on loan, and help readers find what they need.
+      </p>
+    </section>
+
+    <section id="services" class="home-section">
+      <h2 class="home-section-title">Services</h2>
+      <div class="home-programs">
+        <article class="card home-program-card">
+          <h3>Borrowing &amp; returns</h3>
+          <p>Issue and receive books with clear due dates. Staff use the online catalog to update availability and shelf locations.</p>
+        </article>
+        <article class="card home-program-card">
+          <h3>Reading space</h3>
+          <p>A calm area for individual study and reference use, with newspapers and course-related reserves when available.</p>
+        </article>
+        <article class="card home-program-card">
+          <h3>Staff tools</h3>
+          <p>Accession records, status (on loan, reference, repair), and shelf labels stay aligned through the staff catalog page.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="home-section home-section-contact">
+      <h2 class="home-section-title">Visit &amp; contact</h2>
+      <div class="home-contact">
+        <p><strong>Address</strong><br>GJ College Library, Rambagh, Bihta, Patna, Bihar</p>
+        <p><strong>Typical hours</strong><br>Monday–Saturday, 10:00 a.m.–5:00 p.m. (confirm with the college office.)</p>
+        <p class="home-contact-note">Add phone, email, and holiday hours here when final.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div><strong>GJ Library</strong> · Rambagh, Bihta, Patna</div>
+    <div><a href="#explore-books">Explore books</a> · <a href="catalog.html">Catalog</a></div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth-app-role.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/header-profile.js"></script>
+  <script src="js/sign-in-required-dialog.js"></script>
+  <script src="js/explore-books.js"></script>
+</body>
+</html>

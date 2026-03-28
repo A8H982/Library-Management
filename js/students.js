@@ -4,23 +4,27 @@
   var gate = document.getElementById("students-gate");
   var gateMsg = document.getElementById("students-gate-msg");
   var app = document.getElementById("students-app");
-  var modal = document.getElementById("student-modal");
-  var form = document.getElementById("student-form");
-  var formErr = document.getElementById("student-form-error");
-  var modalTitle = document.getElementById("student-modal-title");
-  var inputSid = document.getElementById("stu-id");
-  var inputName = document.getElementById("stu-name");
-  var inputProgram = document.getElementById("stu-program");
-  var inputYear = document.getElementById("stu-year");
-  var inputStatus = document.getElementById("stu-status");
-  var btnAdd = document.getElementById("btn-student-add");
   var btnReload = document.getElementById("btn-students-reload");
-  var btnCancel = document.getElementById("btn-student-cancel");
-  var btnDelete = document.getElementById("btn-student-delete");
-  var btnSave = document.getElementById("btn-student-save");
+  var btnAdd = document.getElementById("btn-student-add");
+  var modal = document.getElementById("staff-student-modal");
+  var modalTitle = document.getElementById("staff-student-modal-title");
+  var form = document.getElementById("staff-student-form");
+  var formErr = document.getElementById("staff-student-form-error");
+  var createOnlyWrap = document.getElementById("staff-stu-create-only");
+  var inputId = document.getElementById("staff-stu-id");
+  var inputEmail = document.getElementById("staff-stu-email");
+  var inputPw = document.getElementById("staff-stu-password");
+  var inputPw2 = document.getElementById("staff-stu-password2");
+  var inputName = document.getElementById("staff-stu-name");
+  var inputProgram = document.getElementById("staff-stu-program");
+  var inputYear = document.getElementById("staff-stu-year");
+  var btnCancel = document.getElementById("btn-staff-student-cancel");
+  var btnSave = document.getElementById("btn-staff-student-save");
+  var btnRemove = document.getElementById("btn-staff-student-remove");
 
   var byId = {};
   var editingPk = null;
+  var createMode = false;
 
   if (!tbody) return;
 
@@ -47,8 +51,44 @@
     return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;");
   }
 
-  function newStudentId() {
-    return "STU-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7);
+  function rowDisplayName(row) {
+    if (!row) return "";
+    if (row.full_name != null && String(row.full_name).trim() !== "") return String(row.full_name);
+    return "";
+  }
+
+  function displaySession(row) {
+    var prog = row.program != null ? String(row.program).trim() : "";
+    var y = window.gjYearFromStudentRow ? window.gjYearFromStudentRow(row) : null;
+    if (!prog || y == null) return "—";
+    var dur = window.gjGetProgramDurationYears(prog);
+    return window.gjFormatSessionRangeFromAdmAndDur(y, dur);
+  }
+
+  function updateStaffSessionPreview() {
+    var prev = document.getElementById("staff-stu-session-preview");
+    if (!prev) return;
+    var prog = inputProgram && inputProgram.value ? String(inputProgram.value).trim() : "";
+    var adm = window.gjSessionYearFromSelect ? window.gjSessionYearFromSelect(inputYear) : null;
+    var dur = window.gjGetProgramDurationYears ? window.gjGetProgramDurationYears(prog) : 3;
+    if (!prog) {
+      prev.textContent = "Set program and admission year to preview session.";
+      return;
+    }
+    if (adm == null) {
+      prev.textContent = "Select admission year to preview session for " + prog + ".";
+      return;
+    }
+    var endY = adm + dur;
+    var label = window.gjFormatSessionRangeFromAdmAndDur(adm, dur);
+    prev.innerHTML =
+      "Session: <strong>" +
+      label +
+      "</strong> — Passout <strong>" +
+      endY +
+      "</strong> (" +
+      dur +
+      "-year programme).";
   }
 
   async function ensureAccess() {
@@ -70,7 +110,7 @@
       if (app) app.hidden = true;
       if (gateMsg) {
         gateMsg.textContent =
-          "This directory is only available to library staff. Student accounts can explore books on the home page.";
+          "This directory is only available to library staff. Student accounts can set program and session under Program & session in the profile menu.";
       }
       return false;
     }
@@ -79,27 +119,80 @@
     return true;
   }
 
-  function openModal(isNew, row) {
-    if (!modal) return;
-    editingPk = isNew ? null : row && row.id ? String(row.id) : null;
-    if (modalTitle) modalTitle.textContent = isNew ? "Add student" : "Edit student";
-    setFormErr("");
-    if (btnDelete) btnDelete.hidden = isNew;
-    if (isNew) {
-      if (inputSid) inputSid.value = newStudentId();
-      if (inputName) inputName.value = "";
-      if (inputProgram) inputProgram.value = "";
-      if (inputYear) inputYear.value = "";
-      if (inputStatus) inputStatus.value = "active";
-    } else if (row) {
-      if (inputSid) inputSid.value = row.student_id != null ? String(row.student_id) : "";
-      if (inputName) inputName.value = row.full_name != null ? String(row.full_name) : "";
-      if (inputProgram) inputProgram.value = row.program != null ? String(row.program) : "";
-      if (inputYear)
-        inputYear.value =
-          row.year != null && !isNaN(row.year) ? String(row.year) : "";
-      if (inputStatus) inputStatus.value = row.status ? String(row.status).toLowerCase() : "active";
+  function hintForProfilesError(em) {
+    if (!em) return "";
+    if (/PGRST205|Could not find the table|schema cache/i.test(em)) {
+      return " Run supabase/student-profiles.sql in the Supabase SQL Editor, then reload.";
     }
+    if (/permission denied|policy|42501|row-level security/i.test(em)) {
+      return " Run supabase/fix-student-profiles-staff-update-rls.sql in the Supabase SQL Editor.";
+    }
+    if (/is_active|schema cache/i.test(em)) {
+      return " Run supabase/student-profiles-is-active.sql in the Supabase SQL Editor.";
+    }
+    return "";
+  }
+
+  function openCreateModal() {
+    if (!modal) return;
+    createMode = true;
+    editingPk = null;
+    setFormErr("");
+    if (modalTitle) modalTitle.textContent = "Add student";
+    if (inputId) inputId.value = "";
+    if (inputEmail) {
+      inputEmail.value = "";
+      inputEmail.readOnly = false;
+      inputEmail.removeAttribute("readonly");
+    }
+    if (inputName) inputName.value = "";
+    if (inputPw) inputPw.value = "";
+    if (inputPw2) inputPw2.value = "";
+    if (window.gjClearLegacyProgramOptions) window.gjClearLegacyProgramOptions(inputProgram);
+    if (inputProgram) inputProgram.value = "";
+    if (inputYear && window.gjPopulateAdmissionYearSelect) {
+      window.gjPopulateAdmissionYearSelect(inputYear);
+      inputYear.value = "";
+    }
+    if (createOnlyWrap) createOnlyWrap.hidden = false;
+    if (btnRemove) btnRemove.hidden = true;
+    updateStaffSessionPreview();
+    modal.hidden = false;
+    requestAnimationFrame(function () {
+      modal.classList.add("is-open");
+    });
+    if (inputEmail) inputEmail.focus();
+  }
+
+  function openModal(row) {
+    if (!modal || !row || !row.id) return;
+    createMode = false;
+    editingPk = String(row.id);
+    setFormErr("");
+    if (modalTitle) modalTitle.textContent = "Edit student record";
+    if (inputId) inputId.value = editingPk;
+    if (inputEmail) {
+      inputEmail.value = row.email != null ? String(row.email) : "";
+      inputEmail.readOnly = true;
+    }
+    if (createOnlyWrap) createOnlyWrap.hidden = true;
+    if (btnRemove) btnRemove.hidden = false;
+    if (inputPw) inputPw.value = "";
+    if (inputPw2) inputPw2.value = "";
+    if (inputName) inputName.value = rowDisplayName(row);
+    if (window.gjClearLegacyProgramOptions) window.gjClearLegacyProgramOptions(inputProgram);
+    if (inputProgram) {
+      var pv = row.program != null ? String(row.program).trim() : "";
+      if (pv && window.gjEnsureProgramOptionExists) window.gjEnsureProgramOptionExists(inputProgram, pv);
+      inputProgram.value = pv;
+    }
+    if (inputYear && window.gjPopulateAdmissionYearSelect) {
+      window.gjPopulateAdmissionYearSelect(inputYear);
+      var yRow = window.gjYearFromStudentRow(row);
+      if (yRow != null && window.gjEnsureAdmissionYearOption) window.gjEnsureAdmissionYearOption(inputYear, yRow);
+      inputYear.value = yRow != null ? String(yRow) : "";
+    }
+    updateStaffSessionPreview();
     modal.hidden = false;
     requestAnimationFrame(function () {
       modal.classList.add("is-open");
@@ -109,6 +202,13 @@
 
   function closeModal() {
     editingPk = null;
+    createMode = false;
+    if (createOnlyWrap) createOnlyWrap.hidden = true;
+    if (btnRemove) {
+      btnRemove.hidden = true;
+      btnRemove.disabled = false;
+    }
+    if (inputEmail) inputEmail.readOnly = false;
     if (!modal) return;
     modal.classList.remove("is-open");
     setTimeout(function () {
@@ -121,17 +221,15 @@
     var client = window.gjSupabase;
     if (!client) return;
     setStatus("Loading…");
-    var res = await client.from("students").select("*").order("student_id", { ascending: true });
+    var res = await client
+      .from("student_profiles")
+      .select("*")
+      .or("is_active.is.null,is_active.eq.true")
+      .order("email", { ascending: true });
     if (res.error) {
       var em = res.error.message || String(res.error);
-      setStatus(
-        em +
-          (/PGRST205|Could not find the table|schema cache/i.test(em)
-            ? " — Run supabase/rls-staff-student-roles.sql (creates students) or legacy-setup-students.sql, then reload."
-            : ""),
-        true
-      );
-      tbody.innerHTML = "<tr><td colspan='5'>Could not load students.</td></tr>";
+      setStatus(em + hintForProfilesError(em), true);
+      tbody.innerHTML = "<tr><td colspan='4'>Could not load students.</td></tr>";
       return;
     }
     var rows = res.data || [];
@@ -140,116 +238,213 @@
       byId[String(r.id)] = r;
     });
     if (rows.length === 0) {
-      tbody.innerHTML = "<tr><td colspan='5'>No rows yet. Add a student to begin.</td></tr>";
+      tbody.innerHTML =
+        "<tr><td colspan='4'>No students in the directory yet. Use <strong>Add student</strong> or have students register on the sign-in page.</td></tr>";
       setStatus("");
       return;
     }
     tbody.innerHTML = rows
       .map(function (r) {
         var id = String(r.id);
-        var sid = r.student_id != null ? String(r.student_id) : "—";
-        var nm = r.full_name != null ? String(r.full_name) : "—";
-        var prog = r.program != null ? String(r.program) : "—";
-        var yr = r.year != null && !isNaN(r.year) ? String(r.year) : "—";
-        var st = r.status != null ? String(r.status) : "—";
+        var email = r.email != null && String(r.email).trim() !== "" ? String(r.email) : "—";
+        var nm = rowDisplayName(r) || "—";
+        var prog = r.program != null && String(r.program).trim() !== "" ? String(r.program) : "—";
+        var sess = displaySession(r);
         return (
           '<tr class="student-row" data-student-id="' +
           escapeAttr(id) +
           '" tabindex="0" role="button"><td>' +
-          escapeHtml(sid) +
+          escapeHtml(email) +
           "</td><td>" +
           escapeHtml(nm) +
           "</td><td>" +
           escapeHtml(prog) +
           "</td><td>" +
-          escapeHtml(yr) +
-          "</td><td>" +
-          escapeHtml(st) +
+          escapeHtml(sess) +
           "</td></tr>"
         );
       })
       .join("");
-    setStatus(rows.length + " student(s). Tap a row to edit.");
+    setStatus(rows.length + " student(s). Tap a row to edit, or use Add student to create a login.");
   }
 
   async function onSubmit(e) {
     e.preventDefault();
     var client = window.gjSupabase;
     if (!client) return;
+
+    if (createMode) {
+      var email = inputEmail ? inputEmail.value.trim() : "";
+      var pw = inputPw ? inputPw.value : "";
+      var pw2 = inputPw2 ? inputPw2.value : "";
+      var name = inputName ? inputName.value.trim() : "";
+      var program = inputProgram ? inputProgram.value.trim() : "";
+      var y = window.gjSessionYearFromSelect ? window.gjSessionYearFromSelect(inputYear) : null;
+
+      setFormErr("");
+      if (!email) {
+        setFormErr("Email is required.");
+        return;
+      }
+      if (pw.length < 6) {
+        setFormErr("Password must be at least 6 characters.");
+        return;
+      }
+      if (pw !== pw2) {
+        setFormErr("Passwords do not match.");
+        return;
+      }
+
+      if (btnSave) {
+        btnSave.disabled = true;
+        btnSave.textContent = "Creating…";
+      }
+
+      try {
+        var staffSnap = await client.auth.getSession();
+        var staffSession = staffSnap.data && staffSnap.data.session;
+        if (!staffSession) {
+          setFormErr("Your session expired. Sign in again.");
+          return;
+        }
+
+        var redirectTo =
+          window.location.origin + window.location.pathname.replace(/[^/]*$/, "auth.html");
+
+        var meta = { app_role: "student" };
+        if (name) meta.full_name = name;
+
+        var signUpResult = await client.auth.signUp({
+          email: email.trim(),
+          password: pw,
+          options: {
+            emailRedirectTo: redirectTo,
+            data: meta,
+          },
+        });
+
+        if (signUpResult.error) {
+          setFormErr(signUpResult.error.message || String(signUpResult.error));
+          return;
+        }
+
+        var newUser = signUpResult.data && signUpResult.data.user;
+        if (!newUser) {
+          setFormErr("Sign up did not return a user.");
+          return;
+        }
+
+        var newSession = signUpResult.data && signUpResult.data.session;
+        if (newSession && staffSession && newSession.user.id !== staffSession.user.id) {
+          var restored = await client.auth.setSession({
+            access_token: staffSession.access_token,
+            refresh_token: staffSession.refresh_token,
+          });
+          if (restored.error) {
+            setFormErr(
+              "Student account was created. Sign in again as staff — could not restore your session: " +
+                (restored.error.message || "")
+            );
+            closeModal();
+            return;
+          }
+          if (typeof window.gjApplyStaffSession === "function") {
+            var sAgain = await client.auth.getSession();
+            if (sAgain.data && sAgain.data.session) window.gjApplyStaffSession(sAgain.data.session);
+          }
+        }
+
+        var profilePayload = {
+          full_name: name || null,
+          program: program || null,
+          year: y,
+        };
+
+        var upd = await client.from("student_profiles").update(profilePayload).eq("id", newUser.id).select();
+
+        if (!upd.error && upd.data && upd.data.length) {
+          closeModal();
+          await loadStudents();
+          return;
+        }
+
+        var ins = await client
+          .from("student_profiles")
+          .upsert(
+            {
+              id: newUser.id,
+              email: email.trim().toLowerCase(),
+              full_name: profilePayload.full_name,
+              program: profilePayload.program,
+              year: profilePayload.year,
+              is_active: true,
+            },
+            { onConflict: "id" }
+          )
+          .select();
+
+        if (ins.error) {
+          var im = ins.error.message || String(ins.error);
+          var um = upd.error ? upd.error.message || "" : "";
+          setFormErr(
+            im +
+              (um ? " (update: " + um + ")" : "") +
+              hintForProfilesError(im) +
+              " If this is a permission error, run supabase/student-profiles-staff-insert.sql in Supabase."
+          );
+          return;
+        }
+        if (!ins.data || !ins.data.length) {
+          setFormErr(
+            "Student was created but the profile row was not saved. Run supabase/student-profiles-staff-insert.sql in the SQL Editor."
+          );
+          return;
+        }
+
+        closeModal();
+        await loadStudents();
+      } finally {
+        if (btnSave) {
+          btnSave.disabled = false;
+          btnSave.textContent = "Save";
+        }
+      }
+      return;
+    }
+
+    if (!editingPk) return;
+
     var name = inputName ? inputName.value.trim() : "";
     var program = inputProgram ? inputProgram.value.trim() : "";
-    var sid = inputSid ? inputSid.value.trim() : "";
-    var y = inputYear && inputYear.value.trim() ? parseInt(inputYear.value, 10) : null;
-    var st = inputStatus ? inputStatus.value : "active";
-    if (!name) {
-      setFormErr("Name is required.");
-      return;
-    }
-    if (!program) {
-      setFormErr("Program is required.");
-      return;
-    }
-    if (!sid) sid = newStudentId();
+    var y = window.gjSessionYearFromSelect ? window.gjSessionYearFromSelect(inputYear) : null;
+
     setFormErr("");
     if (btnSave) {
       btnSave.disabled = true;
       btnSave.textContent = "Saving…";
     }
 
-    if (editingPk) {
-      var upd = await client
-        .from("students")
-        .update({
-          student_id: sid,
-          full_name: name,
-          program: program,
-          year: y,
-          status: st,
-        })
-        .eq("id", editingPk)
-        .select();
-      if (btnSave) {
-        btnSave.disabled = false;
-        btnSave.textContent = "Save";
-      }
-      if (upd.error) {
-        setFormErr(upd.error.message || String(upd.error));
-        return;
-      }
-    } else {
-      var ins = await client
-        .from("students")
-        .insert([
-          {
-            student_id: sid,
-            full_name: name,
-            program: program,
-            year: y,
-            status: st,
-          },
-        ])
-        .select();
-      if (btnSave) {
-        btnSave.disabled = false;
-        btnSave.textContent = "Save";
-      }
-      if (ins.error) {
-        setFormErr(ins.error.message || String(ins.error));
-        return;
-      }
-    }
-    closeModal();
-    await loadStudents();
-  }
+    var payload = {
+      full_name: name || null,
+      program: program || null,
+      year: y,
+    };
 
-  async function onDelete() {
-    if (!editingPk) return;
-    if (!window.confirm("Remove this student record?")) return;
-    var client = window.gjSupabase;
-    if (!client) return;
-    var del = await client.from("students").delete().eq("id", editingPk);
-    if (del.error) {
-      setFormErr(del.error.message || String(del.error));
+    var upd = await client.from("student_profiles").update(payload).eq("id", editingPk).select();
+    if (btnSave) {
+      btnSave.disabled = false;
+      btnSave.textContent = "Save";
+    }
+    if (upd.error) {
+      var um = upd.error.message || String(upd.error);
+      setFormErr(um + hintForProfilesError(um));
+      return;
+    }
+    var rows = upd.data;
+    if (!rows || !rows.length) {
+      setFormErr(
+        "Save did not update any row (permission denied or missing policy). In Supabase → SQL Editor, run the script supabase/fix-student-profiles-staff-update-rls.sql, then reload this page."
+      );
       return;
     }
     closeModal();
@@ -260,14 +455,46 @@
     var tr = ev.target.closest("tr.student-row");
     if (!tr || !tbody.contains(tr)) return;
     var id = tr.getAttribute("data-student-id");
-    if (id && byId[id]) openModal(false, byId[id]);
+    if (id && byId[id]) openModal(byId[id]);
   }
 
-  if (btnAdd) btnAdd.addEventListener("click", function () { openModal(true); });
+  async function onRemoveFromDirectory() {
+    if (!editingPk || createMode) return;
+    if (
+      !window.confirm(
+        "Remove this student from the directory? Their login still works unless you delete the user in Supabase → Authentication."
+      )
+    ) {
+      return;
+    }
+    var client = window.gjSupabase;
+    if (!client) return;
+    setFormErr("");
+    if (btnRemove) btnRemove.disabled = true;
+    var upd = await client.from("student_profiles").update({ is_active: false }).eq("id", editingPk).select();
+    if (btnRemove) btnRemove.disabled = false;
+    if (upd.error) {
+      var xm = upd.error.message || String(upd.error);
+      setFormErr(xm + hintForProfilesError(xm));
+      return;
+    }
+    if (!upd.data || !upd.data.length) {
+      setFormErr(
+        "Could not remove this row. Run supabase/student-profiles-is-active.sql in the Supabase SQL Editor, then reload."
+      );
+      return;
+    }
+    closeModal();
+    await loadStudents();
+  }
+
+  if (btnAdd) btnAdd.addEventListener("click", openCreateModal);
   if (btnReload) btnReload.addEventListener("click", loadStudents);
   if (btnCancel) btnCancel.addEventListener("click", closeModal);
-  if (btnDelete) btnDelete.addEventListener("click", onDelete);
+  if (btnRemove) btnRemove.addEventListener("click", onRemoveFromDirectory);
   if (form) form.addEventListener("submit", onSubmit);
+  if (inputProgram) inputProgram.addEventListener("change", updateStaffSessionPreview);
+  if (inputYear) inputYear.addEventListener("change", updateStaffSessionPreview);
   if (modal) {
     modal.addEventListener("click", function (ev) {
       if (ev.target === modal) closeModal();
@@ -281,7 +508,7 @@
       if (!tr || !tbody.contains(tr)) return;
       ev.preventDefault();
       var id = tr.getAttribute("data-student-id");
-      if (id && byId[id]) openModal(false, byId[id]);
+      if (id && byId[id]) openModal(byId[id]);
     });
   }
 
@@ -289,6 +516,8 @@
     if (ev.key !== "Escape" || !modal || modal.hidden) return;
     closeModal();
   });
+
+  if (inputYear && window.gjPopulateAdmissionYearSelect) window.gjPopulateAdmissionYearSelect(inputYear);
 
   var ok = await ensureAccess();
   if (ok) await loadStudents();

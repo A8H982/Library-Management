@@ -33,16 +33,23 @@
   var detailYearWrap = document.getElementById("detail-year-wrap");
   var detailStatusWrap = document.getElementById("detail-status-wrap");
   var btnCloseDetail = document.getElementById("btn-close-detail");
-  var btnCloseDetailGuest = document.getElementById("btn-close-detail-guest");
-  var btnDetailBuy = document.getElementById("btn-detail-buy");
   var btnDeleteBook = document.getElementById("btn-delete-book");
   var btnUpdateBook = document.getElementById("btn-update-book");
-  var detailCoverPreviewReadonly = document.getElementById("detail-cover-preview-readonly");
+  var viewModal = document.getElementById("book-view-modal");
+  var viewImg = document.getElementById("book-view-cover-img");
+  var viewEmpty = document.getElementById("book-view-cover-empty");
+  var viewTitleText = document.getElementById("book-view-title-text");
+  var viewByline = document.getElementById("book-view-byline");
+  var viewMeta = document.getElementById("book-view-meta");
+  var viewHint = document.getElementById("book-view-hint");
+  var btnBookViewClose = document.getElementById("btn-book-view-close");
+  var btnBookViewBuy = document.getElementById("btn-book-view-buy");
 
   var booksById = {};
   var editingId = null;
+  var viewingId = null;
   var catalogCanEditStaff = false;
-  var catalogSession = null;
+  var catalogIsStudent = false;
 
   if (!tbody) return;
 
@@ -224,21 +231,7 @@
   }
 
   function openModal() {
-    if (!catalogSession) {
-      promptSignInForCatalog("To add a book to the catalog you must sign in.", null);
-      return;
-    }
-    if (!catalogCanEditStaff) {
-      if (typeof window.gjShowSignInRequired === "function") {
-        window.gjShowSignInRequired({
-          message: "Only library staff can add books. Sign in with a staff account to manage the catalog.",
-          redirectPage: "catalog.html",
-          portal: "staff",
-        });
-      }
-      return;
-    }
-    if (!modal) return;
+    if (!catalogCanEditStaff || !modal) return;
     modal.hidden = false;
     requestAnimationFrame(function () {
       modal.classList.add("is-open");
@@ -270,36 +263,6 @@
     }
   }
 
-  function syncReadonlyCoverPreview(client, row) {
-    if (!detailCoverPreviewReadonly) return;
-    var path = row && hasCol(row, "cover_image_path") && row.cover_image_path ? String(row.cover_image_path) : "";
-    var url = path ? coverPublicUrl(client, path) : "";
-    if (url) {
-      detailCoverPreviewReadonly.src = url;
-      detailCoverPreviewReadonly.hidden = false;
-    } else {
-      detailCoverPreviewReadonly.removeAttribute("src");
-      detailCoverPreviewReadonly.hidden = true;
-    }
-  }
-
-  function setDetailUiMode(isStaff) {
-    var staffBlock = document.getElementById("detail-cover-staff-block");
-    var roBlock = document.getElementById("detail-cover-readonly-block");
-    var staffAct = document.getElementById("detail-staff-actions");
-    var guestAct = document.getElementById("detail-guest-actions");
-    if (staffBlock) staffBlock.hidden = !isStaff;
-    if (roBlock) roBlock.hidden = isStaff;
-    if (staffAct) staffAct.hidden = !isStaff;
-    if (guestAct) guestAct.hidden = isStaff;
-
-    [detailTitle, detailAuthor, detailIsbn, detailShelf, detailYear].forEach(function (el) {
-      if (!el) return;
-      el.readOnly = !isStaff;
-    });
-    if (detailStatus) detailStatus.disabled = !isStaff;
-  }
-
   function promptSignInForCatalog(message, portal) {
     if (typeof window.gjShowSignInRequired !== "function") return;
     var opts = {
@@ -312,13 +275,13 @@
 
   async function refreshStaffFlag() {
     var client = window.gjSupabase;
-    catalogSession = null;
     catalogCanEditStaff = false;
+    catalogIsStudent = false;
     if (!client) return;
     var result = await client.auth.getSession();
     var session = result.data && result.data.session;
-    catalogSession = session;
     catalogCanEditStaff = !!(session && typeof window.gjIsStaffFromSession === "function" && window.gjIsStaffFromSession(session));
+    catalogIsStudent = !!(session && typeof window.gjIsStudentFromSession === "function" && window.gjIsStudentFromSession(session));
     syncCatalogToolbar();
   }
 
@@ -327,7 +290,74 @@
     if (bar) bar.hidden = !catalogCanEditStaff;
   }
 
-  function openDetailModal(id) {
+  function closeBookViewModal() {
+    viewingId = null;
+    if (!viewModal) return;
+    viewModal.classList.remove("is-open");
+    setTimeout(function () {
+      viewModal.hidden = true;
+    }, 200);
+  }
+
+  function openBookViewModal(id) {
+    var row = booksById[id];
+    var client = window.gjSupabase;
+    if (!row || !viewModal) return;
+    viewingId = id;
+    var r = normalizeBook(row);
+    if (viewTitleText) viewTitleText.textContent = r.title;
+    if (viewByline) {
+      viewByline.textContent = r.author && r.author !== "—" ? "by " + r.author : "";
+    }
+    var stLabel =
+      r.status === "on_loan"
+        ? "On loan"
+        : r.status === "reference"
+          ? "Reference"
+          : r.status === "lost"
+            ? "Lost"
+            : r.status === "repair"
+              ? "Repair"
+              : r.status === "available"
+                ? "Available"
+                : r.status;
+    var metaParts = ["Accession " + r.accession_code];
+    if (r.isbn && r.isbn !== "—") metaParts.push("ISBN " + r.isbn);
+    if (r.shelf_location && r.shelf_location !== "—") metaParts.push("Shelf " + r.shelf_location);
+    if (r.year && r.year !== "—") metaParts.push("Year " + r.year);
+    metaParts.push("Status: " + stLabel);
+    if (viewMeta) viewMeta.textContent = metaParts.join(" · ");
+
+    if (viewHint) {
+      viewHint.textContent = catalogIsStudent
+        ? "Signed in as a student — tap Buy to register interest. Staff will use your account email at the desk."
+        : "Sign in with a student account to submit a request from here, or visit the library desk.";
+    }
+
+    var path = row && hasCol(row, "cover_image_path") && row.cover_image_path ? String(row.cover_image_path) : "";
+    var url = path && client ? coverPublicUrl(client, path) : "";
+    if (viewImg && viewEmpty) {
+      if (url) {
+        viewImg.src = url;
+        viewImg.alt = r.title || "Book cover";
+        viewImg.hidden = false;
+        viewEmpty.hidden = true;
+      } else {
+        viewImg.removeAttribute("src");
+        viewImg.alt = "";
+        viewImg.hidden = true;
+        viewEmpty.hidden = false;
+      }
+    }
+
+    viewModal.hidden = false;
+    requestAnimationFrame(function () {
+      viewModal.classList.add("is-open");
+    });
+    if (btnBookViewClose) btnBookViewClose.focus();
+  }
+
+  function openStaffDetailModal(id) {
     var row = booksById[id];
     var client = window.gjSupabase;
     if (!row || !detailModal) return;
@@ -335,12 +365,7 @@
     setDetailError("");
     if (checkDetailCoverClear) checkDetailCoverClear.checked = false;
     if (inputDetailCover) inputDetailCover.value = "";
-    setDetailUiMode(catalogCanEditStaff);
-    if (catalogCanEditStaff) {
-      syncDetailCoverPreview(client, row);
-    } else {
-      syncReadonlyCoverPreview(client, row);
-    }
+    syncDetailCoverPreview(client, row);
 
     var r = normalizeBook(row);
     if (detailMeta) {
@@ -367,11 +392,12 @@
     requestAnimationFrame(function () {
       detailModal.classList.add("is-open");
     });
-    if (catalogCanEditStaff) {
-      if (detailTitle) detailTitle.focus();
-    } else if (btnCloseDetailGuest) {
-      btnCloseDetailGuest.focus();
-    }
+    if (detailTitle) detailTitle.focus();
+  }
+
+  function openBookRow(id) {
+    if (catalogCanEditStaff) openStaffDetailModal(id);
+    else openBookViewModal(id);
   }
 
   function closeDetailModal() {
@@ -502,12 +528,13 @@
     setStatus(
       rows.length +
         " title(s) in catalog. " +
-        (catalogCanEditStaff ? "Tap a row to edit or remove a record." : "Tap a row to view details or buy.")
+        (catalogCanEditStaff ? "Tap a row to edit or remove a record." : "Tap a row to view a title and buy or request it.")
     );
   }
 
   async function onSubmitForm(e) {
     e.preventDefault();
+    if (!catalogCanEditStaff) return;
     var client = window.gjSupabase;
     if (!client) {
       setFormError("Database is not connected.");
@@ -688,20 +715,7 @@
   }
 
   async function onDeleteAllBooks() {
-    if (!catalogSession) {
-      promptSignInForCatalog("To delete catalog records you must sign in.", null);
-      return;
-    }
-    if (!catalogCanEditStaff) {
-      if (typeof window.gjShowSignInRequired === "function") {
-        window.gjShowSignInRequired({
-          message: "Only library staff can remove catalog records.",
-          redirectPage: "catalog.html",
-          portal: "staff",
-        });
-      }
-      return;
-    }
+    if (!catalogCanEditStaff) return;
     var client = window.gjSupabase;
     if (!client) {
       setStatus("Database is not connected.", true);
@@ -753,6 +767,7 @@
 
     booksById = {};
     editingId = null;
+    if (viewModal && !viewModal.hidden) closeBookViewModal();
     if (detailModal && !detailModal.hidden) closeDetailModal();
     setStatus("All books were removed from the database.");
     await loadBooks();
@@ -762,7 +777,7 @@
     var tr = ev.target.closest("tr.book-row");
     if (!tr || !tbody.contains(tr)) return;
     var id = tr.getAttribute("data-book-id");
-    if (id) openDetailModal(id);
+    if (id) openBookRow(id);
   }
 
   function onTbodyKeydown(ev) {
@@ -771,7 +786,30 @@
     if (!tr || !tbody.contains(tr)) return;
     ev.preventDefault();
     var id = tr.getAttribute("data-book-id");
-    if (id) openDetailModal(id);
+    if (id) openBookRow(id);
+  }
+
+  async function onBookViewBuy() {
+    var client = window.gjSupabase;
+    if (!client) return;
+    var row = viewingId ? booksById[viewingId] : null;
+    var title = row && row.title != null ? String(row.title).trim() : "this title";
+    var res = await client.auth.getSession();
+    var session = res.data && res.data.session;
+    if (!session) {
+      promptSignInForCatalog("To buy this book, sign in with your student account.", "student");
+      return;
+    }
+    if (!window.gjIsStudentFromSession || !window.gjIsStudentFromSession(session)) {
+      window.alert(
+        "Purchase requests from this dialog are for student accounts. Staff manage copies with Add book and row details."
+      );
+      return;
+    }
+    closeBookViewModal();
+    if (typeof window.gjOpenBookBookingFlow === "function") {
+      window.gjOpenBookBookingFlow(title);
+    }
   }
 
   if (btnOpen) btnOpen.addEventListener("click", openModal);
@@ -790,24 +828,11 @@
     tbody.addEventListener("keydown", onTbodyKeydown);
   }
   if (btnCloseDetail) btnCloseDetail.addEventListener("click", closeDetailModal);
-  if (btnCloseDetailGuest) btnCloseDetailGuest.addEventListener("click", closeDetailModal);
-  if (btnDetailBuy) {
-    btnDetailBuy.addEventListener("click", async function () {
-      var client = window.gjSupabase;
-      if (!client) return;
-      var res = await client.auth.getSession();
-      var session = res.data && res.data.session;
-      if (!session) {
-        promptSignInForCatalog("To buy this book you must sign in.", "student");
-        return;
-      }
-      var row = editingId ? booksById[editingId] : null;
-      var title = row && row.title != null ? String(row.title).trim() : "this title";
-      window.alert(
-        "Thanks — we noted your interest in \u201c" +
-          title +
-          "\u201d.\n\nVisit the library desk to complete your request."
-      );
+  if (btnBookViewClose) btnBookViewClose.addEventListener("click", closeBookViewModal);
+  if (btnBookViewBuy) btnBookViewBuy.addEventListener("click", onBookViewBuy);
+  if (viewModal) {
+    viewModal.addEventListener("click", function (ev) {
+      if (ev.target === viewModal) closeBookViewModal();
     });
   }
   if (btnDeleteBook) btnDeleteBook.addEventListener("click", onDeleteBook);
@@ -820,8 +845,13 @@
 
   document.addEventListener("keydown", function (ev) {
     if (ev.key !== "Escape") return;
+    if (typeof window.gjCloseBookBookingModal === "function" && window.gjCloseBookBookingModal()) return;
     var signInEl = document.getElementById("gj-sign-in-required-backdrop");
     if (signInEl && !signInEl.hasAttribute("hidden")) return;
+    if (viewModal && !viewModal.hidden) {
+      closeBookViewModal();
+      return;
+    }
     if (detailModal && !detailModal.hidden) {
       closeDetailModal();
       return;

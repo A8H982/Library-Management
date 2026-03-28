@@ -44,8 +44,10 @@
     if (signupLead) {
       signupLead.textContent = isStaff
         ? "Use your work email. This account will be registered as library staff."
-        : "Use your college email. This account will be registered as a student.";
+        : "Use your college email and your full name. This account will be registered as a student.";
     }
+    var nameWrap = document.getElementById("signup-name-wrap");
+    if (nameWrap) nameWrap.hidden = isStaff;
   }
 
   function setPortal(portal) {
@@ -241,6 +243,13 @@
         return;
       }
 
+      var nameEl = document.getElementById("signup-name");
+      var fullName = nameEl && nameEl.value ? String(nameEl.value).trim() : "";
+      if (appRole === "student" && !fullName) {
+        showMessage("Please enter your full name.", "error");
+        return;
+      }
+
       if (btn) {
         btn.disabled = true;
         btn.textContent = "Creating account…";
@@ -250,14 +259,15 @@
         window.location.origin +
         window.location.pathname.replace(/[^/]*$/, "auth.html");
 
+      var userMeta = { app_role: appRole };
+      if (appRole === "student" && fullName) userMeta.full_name = fullName;
+
       var signUpResult = await client.auth.signUp({
         email: email,
         password: password,
         options: {
           emailRedirectTo: redirectTo,
-          data: {
-            app_role: appRole,
-          },
+          data: userMeta,
         },
       });
 

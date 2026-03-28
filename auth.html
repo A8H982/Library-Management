@@ -24,7 +24,10 @@
         <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
       </button>
     </div>
-    <a href="index.html" class="auth-global-back">← Home</a>
+    <span class="auth-global-links">
+      <a href="index.html" class="auth-global-back">← Home</a>
+      <a href="contact.html" class="auth-global-back">Contact</a>
+    </span>
   </div>
   <div class="auth-page">
     <aside class="auth-brand">
@@ -78,6 +81,10 @@
             <div class="form-field">
               <label for="signup-email">Email</label>
               <input type="email" id="signup-email" autocomplete="email" required placeholder="you@college.edu">
+            </div>
+            <div class="form-field" id="signup-name-wrap" hidden>
+              <label for="signup-name">Full name</label>
+              <input type="text" id="signup-name" name="name" autocomplete="name" maxlength="120" placeholder="Your name as used at college">
             </div>
             <div class="form-field">
               <label for="signup-password">Password</label>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Students — GJ Library</title>
+  <title>Program & session — GJ Library</title>
   <script src="js/theme-init.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +29,7 @@
           <li><a href="index.html#services">Services</a></li>
           <li><a href="contact.html">Contact</a></li>
           <li><a href="catalog.html">Catalog</a></li>
-          <li><a href="students.html" class="active">Students</a></li>
+          <li data-gj-staff-only hidden><a href="students.html">Students</a></li>
         </ul>
       </nav>
       <div class="theme-switcher" role="group" aria-label="Color theme">
@@ -70,95 +70,51 @@
   </header>
 
   <main>
-    <div id="students-gate" hidden>
-      <h1 class="page-title">Students</h1>
-      <p class="page-sub" id="students-gate-msg">Checking access…</p>
-      <p class="page-sub"><a href="auth.html?portal=staff&amp;redirect=students.html">Staff sign in</a> · <a href="index.html">Home</a></p>
+    <div id="student-profile-gate" hidden>
+      <h1 class="page-title">Program & session</h1>
+      <p class="page-sub" id="student-profile-gate-msg">Checking access…</p>
+      <p class="page-sub"><a href="auth.html?portal=student&amp;redirect=student-profile.html">Student sign in</a> · <a href="index.html">Home</a></p>
     </div>
 
-    <div id="students-app" hidden>
-      <h1 class="page-title">Student directory</h1>
-      <p class="page-sub">Staff-only directory. <strong>Add student</strong> uses the same sign-up as the auth page. <strong>Remove from directory</strong> hides a student without deleting their login (run <code>supabase/student-profiles-is-active.sql</code> once for the <code>is_active</code> column). Also run <code>supabase/student-profiles-staff-insert.sql</code> if staff insert is missing.</p>
-      <p id="students-load-status" class="page-sub" style="margin-top:-1rem;font-size:0.9rem;"></p>
+    <div id="student-profile-app" hidden>
+      <h1 class="page-title">Your program & session</h1>
+      <p class="page-sub">Program and admission year are <strong>optional</strong>. When you add them, session (e.g. <strong>2023-26</strong>) is derived from your program length. Library staff can also add or edit these on the Students page.</p>
+      <p id="student-profile-status" class="page-sub" style="margin-top:-1rem;font-size:0.9rem;"></p>
 
-      <div class="toolbar">
-        <button type="button" class="btn btn-primary" id="btn-student-add">Add student</button>
-        <button type="button" class="btn btn-ghost" id="btn-students-reload" title="Reload">Reload</button>
-      </div>
-
-      <div class="modal-backdrop" id="staff-student-modal" role="dialog" aria-modal="true" aria-labelledby="staff-student-modal-title" hidden>
-        <div class="modal modal-wide">
-          <h2 id="staff-student-modal-title">Edit student record</h2>
-          <div class="form-error" id="staff-student-form-error" hidden></div>
-          <form id="staff-student-form" novalidate>
-            <input type="hidden" id="staff-stu-id" value="">
-            <div class="form-field">
-              <label for="staff-stu-email">Email</label>
-              <input type="email" id="staff-stu-email" autocomplete="email" placeholder="student@college.edu">
-            </div>
-            <div id="staff-stu-create-only" class="staff-stu-create-only" hidden>
-              <div class="form-field">
-                <label for="staff-stu-password">Password</label>
-                <input type="password" id="staff-stu-password" autocomplete="new-password" minlength="6" placeholder="At least 6 characters">
-              </div>
-              <div class="form-field">
-                <label for="staff-stu-password2">Confirm password</label>
-                <input type="password" id="staff-stu-password2" autocomplete="new-password" placeholder="Repeat password">
-              </div>
-            </div>
-            <div class="form-field">
-              <label for="staff-stu-name">Full name</label>
-              <input type="text" id="staff-stu-name" autocomplete="name" maxlength="120" placeholder="Optional">
-            </div>
-            <div class="form-field">
-              <label for="staff-stu-program">Program</label>
-              <select id="staff-stu-program" name="program" aria-describedby="staff-stu-program-hint">
-                <option value="">— Not set —</option>
-                <optgroup label="Regular courses">
-                  <option value="I.A / I.Sc">I.A / I.Sc — 2 Years</option>
-                  <option value="B. A. /B. Sc. /B. Com.">B. A. /B. Sc. /B. Com. — 3 Years</option>
-                </optgroup>
-                <optgroup label="Professional courses">
-                  <option value="B.C.A">B.C.A — 3 Years</option>
-                  <option value="B.B.M">B.B.M — 3 Years</option>
-                  <option value="B.Sc ( IT )">B.Sc ( IT ) — 3 Years</option>
-                  <option value="B.Lis">B.Lis — 1 Year</option>
-                </optgroup>
-              </select>
-              <p class="form-field-hint" id="staff-stu-program-hint">Optional. Official G.J. College programmes only.</p>
-            </div>
-            <div class="form-field">
-              <label for="staff-stu-year">Admission year</label>
-              <select id="staff-stu-year" name="admission-year" aria-describedby="staff-stu-session-preview"></select>
-              <p class="form-field-hint" id="staff-stu-session-preview" aria-live="polite"></p>
-              <p class="form-field-hint">Optional. Session (e.g. 2023-26) is shown when program and year are both set.</p>
-            </div>
-            <div class="form-actions" style="justify-content: space-between; flex-wrap: wrap; gap: 0.65rem;">
-              <button type="button" class="btn btn-ghost btn-danger" id="btn-staff-student-remove" hidden>Remove from directory</button>
-              <div style="display:flex;gap:0.65rem;flex-wrap:wrap;margin-left:auto;">
-                <button type="button" class="btn btn-ghost" id="btn-staff-student-cancel">Cancel</button>
-                <button type="submit" class="btn btn-primary" id="btn-staff-student-save">Save</button>
-              </div>
-            </div>
-          </form>
+      <form id="student-profile-form" class="student-profile-form" style="max-width:32rem;margin-top:1rem;">
+        <div class="form-error" id="student-profile-form-error" hidden></div>
+        <div class="form-field">
+          <label for="sp-full-name">Full name</label>
+          <input type="text" id="sp-full-name" name="full_name" autocomplete="name" maxlength="120" placeholder="As used for college records">
         </div>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Name</th>
-              <th>Program</th>
-              <th>Session</th>
-            </tr>
-          </thead>
-          <tbody id="student-rows">
-            <tr><td colspan="4">Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
+        <div class="form-field">
+          <label for="sp-program">Program</label>
+          <select id="sp-program" name="program" aria-describedby="sp-program-hint">
+            <option value="">— Select program —</option>
+            <optgroup label="Regular courses">
+              <option value="I.A / I.Sc">I.A / I.Sc — 2 Years</option>
+              <option value="B. A. /B. Sc. /B. Com.">B. A. /B. Sc. /B. Com. — 3 Years</option>
+            </optgroup>
+            <optgroup label="Professional courses">
+              <option value="B.C.A">B.C.A — 3 Years</option>
+              <option value="B.B.M">B.B.M — 3 Years</option>
+              <option value="B.Sc ( IT )">B.Sc ( IT ) — 3 Years</option>
+              <option value="B.Lis">B.Lis — 1 Year</option>
+            </optgroup>
+          </select>
+          <p class="form-field-hint" id="sp-program-hint">Optional. Only official G.J. College programmes.</p>
+        </div>
+        <div class="form-field">
+          <label for="sp-year">Admission year</label>
+          <select id="sp-year" name="admission-year" aria-describedby="sp-session-preview">
+          </select>
+          <p class="form-field-hint" id="sp-session-preview" aria-live="polite"></p>
+          <p class="form-field-hint">Optional. The year you <strong>joined</strong> this course. Session uses your program’s length when both fields are set.</p>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="btn-student-profile-save">Save</button>
+        </div>
+      </form>
     </div>
   </main>
 
@@ -173,6 +129,6 @@
   <script src="js/student-session.js"></script>
   <script src="js/header-profile.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/students.js"></script>
+  <script src="js/student-profile.js"></script>
 </body>
 </html>

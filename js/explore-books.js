@@ -106,15 +106,6 @@
       .join("");
   }
 
-  function interestMessage(title) {
-    var t = title && String(title).trim() ? String(title).trim() : "this title";
-    return (
-      "Thanks — we noted your interest in \u201c" +
-      t +
-      "\u201d.\n\nVisit the library desk to complete your request."
-    );
-  }
-
   if (grid) {
     grid.addEventListener("click", async function (ev) {
       var btn = ev.target.closest(".explore-book-buy-btn");
@@ -136,8 +127,17 @@
         return;
       }
 
+      if (!window.gjIsStudentFromSession || !window.gjIsStudentFromSession(session)) {
+        window.alert(
+          "Book bookings are for student accounts. Library staff manage the catalog from the catalog page."
+        );
+        return;
+      }
+
       var rawTitle = btn.getAttribute("data-book-title") || "";
-      window.alert(interestMessage(rawTitle));
+      if (typeof window.gjOpenBookBookingFlow === "function") {
+        window.gjOpenBookBookingFlow(rawTitle);
+      }
     });
   }
 

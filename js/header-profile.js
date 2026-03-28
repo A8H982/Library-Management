@@ -1,7 +1,6 @@
 (function () {
   var THEME_KEY = "gj-theme";
   var PROFILE_KEY = "gj-profile";
-  var AVATAR_MAX_BYTES = 180000;
 
   function readProfile() {
     try {
@@ -20,7 +19,10 @@
   function writeProfile(p) {
     try {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
-    } catch (e) {}
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   function readThemePref() {
@@ -61,8 +63,60 @@
     return "G";
   }
 
+  /** File inputs cannot show a previously saved path — show stored image in a preview instead. */
+  function ensureAvatarPreviewMarkup() {
+    if (document.getElementById("profile-edit-avatar-preview-wrap")) return;
+    var fileIn = document.getElementById("profile-edit-avatar");
+    if (!fileIn) return;
+    var field = fileIn.closest(".form-field");
+    if (!field) return;
+    var wrap = document.createElement("div");
+    wrap.id = "profile-edit-avatar-preview-wrap";
+    wrap.className = "profile-edit-avatar-preview-wrap";
+    wrap.setAttribute("hidden", "");
+    wrap.innerHTML =
+      '<p class="form-field-hint profile-edit-avatar-preview-caption">Current profile photo</p>' +
+      '<img id="profile-edit-avatar-preview" class="profile-edit-avatar-preview" alt="Current profile photo">';
+    field.insertBefore(wrap, fileIn);
+    if (!document.getElementById("profile-edit-avatar-file-hint")) {
+      var hint = document.createElement("p");
+      hint.className = "form-field-hint";
+      hint.id = "profile-edit-avatar-file-hint";
+      hint.textContent =
+        "“No file chosen” is normal — your saved photo is above. Choose a file only to replace it.";
+      field.appendChild(hint);
+    }
+  }
+
+  var avatarPreviewObjectUrl = null;
+
+  function revokeAvatarPreviewObjectUrl() {
+    if (avatarPreviewObjectUrl) {
+      URL.revokeObjectURL(avatarPreviewObjectUrl);
+      avatarPreviewObjectUrl = null;
+    }
+  }
+
+  function syncEditModalAvatarPreview() {
+    revokeAvatarPreviewObjectUrl();
+    var wrap = document.getElementById("profile-edit-avatar-preview-wrap");
+    var img = document.getElementById("profile-edit-avatar-preview");
+    if (!wrap || !img) return;
+    var url = state.profile.avatarDataUrl;
+    if (url) {
+      img.src = url;
+      wrap.hidden = false;
+    } else {
+      img.removeAttribute("src");
+      wrap.hidden = true;
+    }
+  }
+
   function ensureModal() {
-    if (document.getElementById("profile-edit-modal")) return;
+    if (document.getElementById("profile-edit-modal")) {
+      ensureAvatarPreviewMarkup();
+      return;
+    }
     var wrap = document.createElement("div");
     wrap.id = "profile-edit-modal";
     wrap.className = "modal-backdrop profile-edit-modal";
@@ -73,14 +127,19 @@
     wrap.innerHTML =
       '<div class="modal profile-edit-modal-inner">' +
       '<h2 id="profile-edit-title">Edit profile</h2>' +
-      '<p class="page-sub" style="margin-top:-0.5rem;font-size:0.85rem;">Name and photo are stored in this browser only.</p>' +
+      '<p class="page-sub" style="margin-top:-0.5rem;font-size:0.85rem;">Name and photo are stored in this browser only. Leave the name empty to show your sign-in email in the header.</p>' +
       '<div class="form-field">' +
       '<label for="profile-edit-name">Display name</label>' +
-      '<input type="text" id="profile-edit-name" autocomplete="name" maxlength="80" placeholder="Your name">' +
+      '<input type="text" id="profile-edit-name" autocomplete="name" maxlength="80" placeholder="Optional — defaults to your email">' +
       "</div>" +
       '<div class="form-field">' +
       '<label for="profile-edit-avatar">Profile photo</label>' +
+      '<div id="profile-edit-avatar-preview-wrap" class="profile-edit-avatar-preview-wrap" hidden>' +
+      '<p class="form-field-hint profile-edit-avatar-preview-caption">Current profile photo</p>' +
+      '<img id="profile-edit-avatar-preview" class="profile-edit-avatar-preview" alt="Current profile photo">' +
+      "</div>" +
       '<input type="file" id="profile-edit-avatar" accept="image/jpeg,image/png,image/webp,image/gif">' +
+      '<p class="form-field-hint" id="profile-edit-avatar-file-hint">“No file chosen” is normal — your saved photo is above. Choose a file only to replace it.</p>' +
       "</div>" +
       '<div class="form-error" id="profile-edit-error" hidden></div>' +
       '<div class="form-actions">' +
@@ -88,6 +147,7 @@
       '<button type="button" class="btn btn-primary" id="profile-edit-save">Save</button>' +
       "</div></div>";
     document.body.appendChild(wrap);
+    ensureAvatarPreviewMarkup();
   }
 
   var state = {
@@ -99,9 +159,13 @@
   };
 
   function applyRoleNav() {
+    var path = window.location.pathname || "";
     var staff =
       !!state.session && typeof window.gjIsStaffFromSession === "function" && window.gjIsStaffFromSession(state.session);
-    var onStudentsPage = /students\.html/i.test(window.location.pathname || "");
+    var student =
+      !!state.session && typeof window.gjIsStudentFromSession === "function" && window.gjIsStudentFromSession(state.session);
+    var onStudentsPage = /students\.html/i.test(path);
+    var onStudentProfilePage = /student-profile\.html/i.test(path);
     document.querySelectorAll("[data-gj-staff-only]").forEach(function (el) {
       if (el.id === "profile-dropdown-students-link") {
         el.hidden = !staff || onStudentsPage;
@@ -109,6 +173,20 @@
         el.hidden = !staff;
       }
     });
+    document.querySelectorAll("[data-gj-student-only]").forEach(function (el) {
+      if (el.id === "profile-dropdown-student-course-link") {
+        el.hidden = !student || onStudentProfilePage;
+      } else {
+        el.hidden = !student;
+      }
+    });
+  }
+
+  /** Header label: manual name first, then email when signed in, else Guest. */
+  function effectiveHeaderLabel() {
+    if (state.profile.displayName) return state.profile.displayName;
+    if (state.signedInEmail) return state.signedInEmail;
+    return "Guest";
   }
 
   function renderAvatar() {
@@ -125,8 +203,8 @@
         img.hidden = true;
         ini.hidden = false;
         ini.textContent = initialsFrom(
-          state.signedInEmail ? "" : state.profile.displayName,
-          state.signedInEmail
+          state.profile.displayName || "",
+          state.signedInEmail || ""
         );
       }
     }
@@ -135,15 +213,7 @@
   function renderTriggerLabel() {
     var el = document.getElementById("profile-display-name");
     if (!el) return;
-    if (state.signedInEmail) {
-      el.textContent = state.signedInEmail;
-      return;
-    }
-    if (state.profile.displayName) {
-      el.textContent = state.profile.displayName;
-      return;
-    }
-    el.textContent = "Guest";
+    el.textContent = effectiveHeaderLabel();
   }
 
   function setRowVisibility() {
@@ -196,6 +266,7 @@
     if (nameIn) nameIn.value = state.profile.displayName;
     var fileIn = document.getElementById("profile-edit-avatar");
     if (fileIn) fileIn.value = "";
+    syncEditModalAvatarPreview();
     if (err) {
       err.textContent = "";
       err.hidden = true;
@@ -211,6 +282,7 @@
   }
 
   function closeEditModal() {
+    revokeAvatarPreviewObjectUrl();
     var modal = document.getElementById("profile-edit-modal");
     if (!modal) return;
     modal.classList.remove("is-open");
@@ -224,15 +296,11 @@
       cb(null, "Choose an image file.");
       return;
     }
-    if (file.size > AVATAR_MAX_BYTES * 2) {
-      cb(null, "Image too large. Use a smaller photo (under ~350 KB).");
-      return;
-    }
     var reader = new FileReader();
     reader.onload = function () {
       var dataUrl = reader.result;
-      if (typeof dataUrl !== "string" || dataUrl.length > AVATAR_MAX_BYTES) {
-        cb(null, "Image is still too large after load. Try a smaller file.");
+      if (typeof dataUrl !== "string") {
+        cb(null, "Could not read that file.");
         return;
       }
       cb(dataUrl, null);
@@ -255,6 +323,27 @@
       });
     }
     if (btnCancel) btnCancel.addEventListener("click", closeEditModal);
+    if (fileIn && !fileIn.dataset.gjAvatarPreviewWired) {
+      fileIn.dataset.gjAvatarPreviewWired = "1";
+      fileIn.addEventListener("change", function () {
+        var wrap = document.getElementById("profile-edit-avatar-preview-wrap");
+        var img = document.getElementById("profile-edit-avatar-preview");
+        if (!img) return;
+        var f = fileIn.files && fileIn.files[0];
+        revokeAvatarPreviewObjectUrl();
+        if (!f) {
+          syncEditModalAvatarPreview();
+          return;
+        }
+        if (!f.type || f.type.indexOf("image/") !== 0) {
+          syncEditModalAvatarPreview();
+          return;
+        }
+        avatarPreviewObjectUrl = URL.createObjectURL(f);
+        img.src = avatarPreviewObjectUrl;
+        if (wrap) wrap.hidden = false;
+      });
+    }
     if (btnSave) {
       btnSave.addEventListener("click", function () {
         var nameIn = document.getElementById("profile-edit-name");
@@ -269,7 +358,12 @@
         function finishSave(avatarUrl) {
           state.profile.displayName = name;
           if (avatarUrl != null) state.profile.avatarDataUrl = avatarUrl;
-          writeProfile(state.profile);
+          if (!writeProfile(state.profile)) {
+            showErr(
+              "Could not save this photo — it may exceed your browser’s storage limit. Try a smaller image or free some site data."
+            );
+            return;
+          }
           renderAvatar();
           renderTriggerLabel();
           closeEditModal();
@@ -291,6 +385,47 @@
     }
   }
 
+  var STUDENT_PROFILE_SYNC_KEY = "gj-student-profiles-synced";
+
+  /**
+   * Ensures public.student_profiles has a row for this student so the staff directory can list them.
+   * Older accounts often have no row (migration ran after signup, or auth trigger did not run).
+   */
+  async function ensureStudentDirectoryRow(c, session) {
+    if (!c || !session || !session.user) return;
+    if (typeof window.gjIsStudentFromSession !== "function" || !window.gjIsStudentFromSession(session)) {
+      return;
+    }
+    var uid = session.user.id;
+    try {
+      if (sessionStorage.getItem(STUDENT_PROFILE_SYNC_KEY) === uid) return;
+    } catch (e) {}
+    var sel = await c.from("student_profiles").select("id").eq("id", uid).maybeSingle();
+    if (sel.error) return;
+    if (sel.data) {
+      try {
+        sessionStorage.setItem(STUDENT_PROFILE_SYNC_KEY, uid);
+      } catch (e2) {}
+      return;
+    }
+    var meta = session.user.user_metadata || {};
+    var fnFromAuth = meta.full_name != null ? String(meta.full_name).trim() : "";
+    var ins = await c.from("student_profiles").insert({
+      id: uid,
+      email: session.user.email || null,
+      full_name: fnFromAuth || null,
+      is_active: true,
+    });
+    if (ins.error) {
+      var code = ins.error.code;
+      var msg = (ins.error.message || "").toLowerCase();
+      if (String(code) !== "23505" && msg.indexOf("duplicate") === -1) return;
+    }
+    try {
+      sessionStorage.setItem(STUDENT_PROFILE_SYNC_KEY, uid);
+    } catch (e3) {}
+  }
+
   async function refreshSessionFromSupabase() {
     var c = window.gjSupabase;
     if (!c) return;
@@ -302,6 +437,7 @@
     renderAvatar();
     setRowVisibility();
     applyRoleNav();
+    await ensureStudentDirectoryRow(c, session);
   }
 
   window.gjApplyStaffSession = function (session) {
@@ -366,6 +502,9 @@
       btnSignout.addEventListener("click", async function () {
         var c = window.gjSupabase;
         if (c) await c.auth.signOut();
+        try {
+          sessionStorage.removeItem(STUDENT_PROFILE_SYNC_KEY);
+        } catch (e) {}
         state.signedInEmail = "";
         state.session = null;
         renderTriggerLabel();

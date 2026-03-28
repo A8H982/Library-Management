@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact G.J. College — campus address, offices, library hours, and message form.">
+  <title>Contact — G.J. College &amp; GJ Library</title>
+  <script src="js/theme-init.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="page-contact page-library">
+  <header class="site-header">
+    <a href="index.html" class="brand">
+      <span class="brand-mark">GJ</span>
+      GJ Library
+    </a>
+    <div class="site-header-right">
+      <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="index.html#explore-books">Explore books</a></li>
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#services">Services</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
+          <li><a href="catalog.html">Catalog</a></li>
+          <li data-gj-staff-only hidden><a href="students.html">Students</a></li>
+        </ul>
+      </nav>
+      <div class="theme-switcher" role="group" aria-label="Color theme">
+        <button type="button" class="theme-btn" data-theme-pref="light" aria-pressed="false" aria-label="Light theme" title="Light mode">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        </button>
+        <button type="button" class="theme-btn" data-theme-pref="dark" aria-pressed="false" aria-label="Dark theme" title="Dark mode">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button type="button" class="theme-btn" data-theme-pref="system" aria-pressed="false" aria-label="Use system theme" title="Match system setting">
+          <svg class="theme-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </button>
+      </div>
+      <div class="profile-menu-wrap">
+        <button type="button" class="profile-menu-trigger" id="profile-menu-trigger" aria-expanded="false" aria-haspopup="true">
+          <span class="header-profile-avatar" id="profile-avatar">
+            <img id="profile-avatar-img" alt="" width="36" height="36" hidden>
+            <span id="profile-avatar-initials">G</span>
+          </span>
+          <span class="profile-menu-trigger-label" id="profile-display-name">Guest</span>
+        </button>
+        <div class="profile-dropdown" id="profile-dropdown" hidden role="menu">
+          <p class="profile-dropdown-email" id="profile-dropdown-email">Not signed in</p>
+          <button type="button" class="profile-dropdown-item" id="profile-dropdown-edit" role="menuitem">Edit profile…</button>
+          <a href="catalog.html" class="profile-dropdown-item" id="profile-dropdown-catalog-link" role="menuitem" hidden>Library catalog</a>
+          <a href="student-profile.html" class="profile-dropdown-item" id="profile-dropdown-student-course-link" role="menuitem" data-gj-student-only hidden>Program & session</a>
+          <a href="students.html" class="profile-dropdown-item" id="profile-dropdown-students-link" role="menuitem" data-gj-staff-only hidden>Manage students</a>
+          <div id="profile-dropdown-signin" class="profile-dropdown-actions">
+            <a href="auth.html?portal=student" class="btn btn-primary btn-block btn-sm">Student sign in</a>
+            <a href="auth.html?portal=staff" class="btn btn-ghost btn-block btn-sm" style="margin-top:0.35rem">Staff sign in</a>
+          </div>
+          <div id="profile-dropdown-signout" class="profile-dropdown-actions" hidden>
+            <button type="button" class="btn btn-ghost btn-block btn-sm" id="btn-profile-sign-out">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="contact-page-main">
+    <h1 class="page-title">Contact G.J. College</h1>
+    <p class="page-sub">Campus location, key offices, and the library — plus a form to reach us by email.</p>
+
+    <section class="college-contact-overview" aria-labelledby="college-campus-title">
+      <h2 id="college-campus-title" class="contact-section-title">Campus</h2>
+      <div class="college-contact-card">
+        <p class="college-contact-lead"><strong>G.J. College</strong> (Gajadhar Jha College)</p>
+        <p>Rambagh, Bihta, Patna, Bihar, India</p>
+        <p><strong>General enquiries</strong><br>
+          <span class="college-contact-placeholder">Phone: — (add official college number)</span><br>
+          <span class="college-contact-placeholder">Email: — (add official college email)</span>
+        </p>
+        <p class="college-contact-note">Replace placeholder phone and email with your official college details when published.</p>
+      </div>
+    </section>
+
+    <section class="college-contact-grid" aria-labelledby="offices-title">
+      <h2 id="offices-title" class="contact-section-title">Key offices</h2>
+      <div class="college-contact-cards">
+        <article class="card college-office-card">
+          <h3>Principal’s office</h3>
+          <p>Academic leadership, affiliations, and institutional matters.</p>
+          <p class="college-contact-placeholder">Phone / Email — add when final</p>
+        </article>
+        <article class="card college-office-card">
+          <h3>Registrar / admission</h3>
+          <p>Enrollment, transcripts, certificates, and exam-related queries.</p>
+          <p class="college-contact-placeholder">Phone / Email — add when final</p>
+        </article>
+        <article class="card college-office-card">
+          <h3>Administration</h3>
+          <p>Accounts, facilities, and day-to-day college operations.</p>
+          <p class="college-contact-placeholder">Phone / Email — add when final</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="college-library-section" aria-labelledby="library-contact-title">
+      <h2 id="library-contact-title" class="contact-section-title">GJ College Library</h2>
+      <div class="college-contact-card">
+        <p class="college-contact-lead"><strong>Library address</strong><br>GJ College Library, same campus as above.</p>
+        <p><strong>Typical desk hours</strong><br>Monday–Saturday, 10:00 a.m.–5:00 p.m. (confirm with the college office.)</p>
+        <p><strong>Online catalog</strong><br><a href="catalog.html">Browse and search the catalog</a> — staff and students use the library portal for borrowing and holdings.</p>
+      </div>
+    </section>
+
+    <section id="message" class="contact-form-section" aria-labelledby="contact-form-title">
+      <h2 id="contact-form-title" class="contact-section-title">Send a message</h2>
+      <p class="home-section-text" style="margin-bottom: 1rem;">Use this form for the library or general college enquiries. We will respond when we can during working hours.</p>
+      <form id="contact-form" class="contact-form" novalidate>
+        <div class="form-field">
+          <label for="contact-name">Name</label>
+          <input type="text" id="contact-name" name="name" autocomplete="name" required maxlength="120" placeholder="Your name">
+        </div>
+        <div class="form-field">
+          <label for="contact-email">Email</label>
+          <input type="email" id="contact-email" name="email" autocomplete="email" required placeholder="you@example.com">
+        </div>
+        <div class="form-field">
+          <label for="contact-subject">Subject <span class="contact-optional">(optional)</span></label>
+          <input type="text" id="contact-subject" name="subject" maxlength="200" placeholder="e.g. Library membership, admission enquiry">
+        </div>
+        <div class="form-field">
+          <label for="contact-message">Message</label>
+          <textarea id="contact-message" name="message" required rows="5" maxlength="4000" placeholder="How can we help?"></textarea>
+        </div>
+        <div class="form-error" id="contact-form-error" hidden></div>
+        <p class="contact-form-success" id="contact-form-success" hidden role="status"></p>
+        <div class="form-actions contact-form-actions">
+          <button type="submit" class="btn btn-primary" id="contact-submit">Send message</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div><strong>GJ Library</strong> · G.J. College · Rambagh, Bihta, Patna</div>
+    <div><a href="index.html">Home</a> · <a href="catalog.html">Catalog</a> · <a href="contact.html">Contact</a></div>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth-app-role.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/header-profile.js"></script>
+  <script src="js/contact-form.js"></script>
+</body>
+</html>

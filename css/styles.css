@@ -313,6 +313,24 @@ a.profile-dropdown-item:hover {
   color: var(--text-muted);
 }
 
+.profile-edit-avatar-preview-wrap {
+  margin-bottom: 0.65rem;
+}
+
+.profile-edit-avatar-preview-caption {
+  margin-bottom: 0.35rem !important;
+}
+
+.profile-edit-avatar-preview {
+  display: block;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  background: var(--bg);
+}
+
 .auth-global-bar {
   position: fixed;
   top: 0;
@@ -322,6 +340,12 @@ a.profile-dropdown-item:hover {
   align-items: center;
   gap: 0.65rem;
   padding: 0.65rem 1rem;
+}
+
+.auth-global-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .auth-global-back {
@@ -764,8 +788,21 @@ tbody tr:hover {
   margin-bottom: 0.35rem;
 }
 
+.form-field-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.form-field-hint strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
 .form-field input,
-.form-field select {
+.form-field select,
+.form-field textarea {
   width: 100%;
   padding: 0.55rem 0.75rem;
   font-family: inherit;
@@ -777,11 +814,24 @@ tbody tr:hover {
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 
+.form-field textarea {
+  min-height: 6rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
 .form-field input:focus,
-.form-field select:focus {
+.form-field select:focus,
+.form-field textarea:focus {
   outline: none;
   border-color: rgba(59, 130, 246, 0.45);
   box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form-field select optgroup {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-style: normal;
 }
 
 .form-actions {
@@ -800,6 +850,15 @@ tbody tr:hover {
 
 .modal.modal-wide {
   max-width: 460px;
+}
+
+.gj-book-pin-display {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-variant-numeric: tabular-nums;
+  margin: 0.75rem 0 0.5rem;
+  color: var(--text, inherit);
 }
 
 .detail-meta {
@@ -891,6 +950,103 @@ tbody tr.book-row:focus {
   align-items: center;
 }
 
+.catalog-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.catalog-toolbar-staff {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.catalog-toolbar-staff[hidden] {
+  display: none !important;
+}
+
+/* Catalog — student/guest book viewer (read-only) */
+.book-view-card {
+  max-width: 42rem;
+}
+
+.book-view-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+.book-view-cover-col {
+  flex: 0 0 auto;
+}
+
+.book-view-cover-img {
+  display: block;
+  width: 200px;
+  height: auto;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.book-view-cover-empty {
+  width: 200px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-elevated);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.book-view-info-col {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.book-view-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.book-view-byline {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.book-view-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.book-view-hint {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.book-view-actions {
+  margin-top: 0.25rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
 .home-section {
   margin-bottom: clamp(2rem, 5vw, 2.75rem);
 }
@@ -952,6 +1108,108 @@ tbody tr.book-row:focus {
 .home-contact-note {
   font-size: 0.85rem !important;
   color: var(--text-muted) !important;
+}
+
+.home-contact-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.home-contact-cta .home-contact-note {
+  margin: 0;
+}
+
+/* Contact page */
+.page-contact .contact-page-main {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
+
+.page-contact .contact-section-title {
+  margin: 2rem 0 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.page-contact .contact-section-title:first-of-type {
+  margin-top: 0;
+}
+
+.college-contact-card {
+  padding: 1.15rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.college-contact-lead {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.college-contact-placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.college-contact-note {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.college-contact-cards {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.college-office-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.college-office-card p {
+  margin: 0 0 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.college-office-card p:last-child {
+  margin-bottom: 0;
+}
+
+.contact-optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+.contact-form-section .contact-form {
+  margin-top: 0.5rem;
+}
+
+.contact-form-actions {
+  justify-content: flex-start;
+}
+
+.contact-form-success {
+  font-size: 0.9rem;
+  color: #22c55e;
+  margin: 0.5rem 0 0;
+}
+
+[data-theme="dark"] .contact-form-success {
+  color: #4ade80;
 }
 
 .page-home .site-footer {

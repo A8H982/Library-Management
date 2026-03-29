@@ -50,6 +50,8 @@
   var viewingId = null;
   var catalogCanEditStaff = false;
   var catalogIsStudent = false;
+  var catalogSearchInput = document.getElementById("catalog-search");
+  var lastCatalogRows = [];
 
   if (!tbody) return;
 
@@ -283,6 +285,7 @@
     catalogCanEditStaff = !!(session && typeof window.gjIsStaffFromSession === "function" && window.gjIsStaffFromSession(session));
     catalogIsStudent = !!(session && typeof window.gjIsStudentFromSession === "function" && window.gjIsStudentFromSession(session));
     syncCatalogToolbar();
+    if (lastCatalogRows.length) renderFilteredCatalog();
   }
 
   function syncCatalogToolbar() {
@@ -442,6 +445,88 @@
     return payload;
   }
 
+  function catalogStatusSuffix() {
+    return catalogCanEditStaff
+      ? "Tap a row to edit or remove a record."
+      : "Tap a row to view a title and buy or request it.";
+  }
+
+  function rowMatchesSearch(b, q) {
+    if (!q) return true;
+    var r = normalizeBook(b);
+    var st = r.status || "";
+    var hay = [r.title, r.author, r.accession_code, r.isbn, r.shelf_location, r.year, st, st.replace(/_/g, " ")]
+      .join(" ")
+      .toLowerCase();
+    var parts = q.split(/\s+/).filter(Boolean);
+    return parts.every(function (p) {
+      return hay.indexOf(p) !== -1;
+    });
+  }
+
+  function buildCatalogRowHtml(b, client) {
+    var r = normalizeBook(b);
+    var bid = String(b.id);
+    var label = "View details for " + r.title.replace(/"/g, "'");
+    var thumbUrl = r.cover_image_path ? coverPublicUrl(client, r.cover_image_path) : "";
+    var thumbCell = thumbUrl
+      ? '<img class="catalog-cover-thumb" src="' +
+        escapeAttr(thumbUrl) +
+        '" alt="" width="40" height="56" loading="lazy">'
+      : '<span class="catalog-cover-placeholder" title="No cover">—</span>';
+    return (
+      '<tr class="book-row" data-book-id="' +
+      escapeAttr(bid) +
+      '" tabindex="0" role="button" aria-label="' +
+      escapeAttr(label) +
+      '"><td class="catalog-cover-cell">' +
+      thumbCell +
+      "</td><td>" +
+      escapeHtml(r.accession_code) +
+      "</td><td>" +
+      escapeHtml(r.title) +
+      "</td><td>" +
+      escapeHtml(r.author) +
+      "</td><td>" +
+      escapeHtml(r.isbn) +
+      "</td><td>" +
+      escapeHtml(r.shelf_location) +
+      "</td><td>" +
+      badgeForStatus(r.status) +
+      "</td></tr>"
+    );
+  }
+
+  function renderFilteredCatalog() {
+    if (!tbody) return;
+    var client = window.gjSupabase;
+    var rawQ = catalogSearchInput ? catalogSearchInput.value.trim() : "";
+    var q = rawQ.toLowerCase();
+    if (lastCatalogRows.length === 0) return;
+    var rows = q
+      ? lastCatalogRows.filter(function (b) {
+          return rowMatchesSearch(b, q);
+        })
+      : lastCatalogRows.slice();
+    if (rows.length === 0) {
+      tbody.innerHTML =
+        '<tr class="catalog-empty-row"><td colspan="7" class="catalog-empty-cell">No titles match your search. Try different keywords.</td></tr>';
+      setStatus('No matches for "' + rawQ + '".', false);
+      return;
+    }
+    tbody.innerHTML = rows
+      .map(function (b) {
+        return buildCatalogRowHtml(b, client);
+      })
+      .join("");
+    var suffix = catalogStatusSuffix();
+    if (q) {
+      setStatus(rows.length + " of " + lastCatalogRows.length + " titles shown. " + suffix, false);
+    } else {
+      setStatus(lastCatalogRows.length + " title(s) in catalog. " + suffix, false);
+    }
+  }
+
   async function loadBooks() {
     var client = window.gjSupabase;
     if (!client) {
@@ -483,6 +568,7 @@
     rows.forEach(function (b) {
       booksById[String(b.id)] = b;
     });
+    lastCatalogRows = rows;
 
     if (rows.length === 0) {
       tbody.innerHTML =
@@ -491,45 +577,7 @@
       return;
     }
 
-    tbody.innerHTML = rows
-      .map(function (b) {
-        var r = normalizeBook(b);
-        var bid = String(b.id);
-        var label = "View details for " + r.title.replace(/"/g, "'");
-        var thumbUrl = r.cover_image_path ? coverPublicUrl(client, r.cover_image_path) : "";
-        var thumbCell = thumbUrl
-          ? '<img class="catalog-cover-thumb" src="' +
-            escapeAttr(thumbUrl) +
-            '" alt="" width="40" height="56" loading="lazy">'
-          : '<span class="catalog-cover-placeholder" title="No cover">—</span>';
-        return (
-          '<tr class="book-row" data-book-id="' +
-          escapeAttr(bid) +
-          '" tabindex="0" role="button" aria-label="' +
-          escapeAttr(label) +
-          '"><td class="catalog-cover-cell">' +
-          thumbCell +
-          "</td><td>" +
-          escapeHtml(r.accession_code) +
-          "</td><td>" +
-          escapeHtml(r.title) +
-          "</td><td>" +
-          escapeHtml(r.author) +
-          "</td><td>" +
-          escapeHtml(r.isbn) +
-          "</td><td>" +
-          escapeHtml(r.shelf_location) +
-          "</td><td>" +
-          badgeForStatus(r.status) +
-          "</td></tr>"
-        );
-      })
-      .join("");
-    setStatus(
-      rows.length +
-        " title(s) in catalog. " +
-        (catalogCanEditStaff ? "Tap a row to edit or remove a record." : "Tap a row to view a title and buy or request it.")
-    );
+    renderFilteredCatalog();
   }
 
   async function onSubmitForm(e) {
@@ -814,6 +862,7 @@
 
   if (btnOpen) btnOpen.addEventListener("click", openModal);
   if (btnReload) btnReload.addEventListener("click", loadBooks);
+  if (catalogSearchInput) catalogSearchInput.addEventListener("input", renderFilteredCatalog);
   if (btnDeleteAll) btnDeleteAll.addEventListener("click", onDeleteAllBooks);
   if (btnCancel) btnCancel.addEventListener("click", closeModal);
   if (modal) {

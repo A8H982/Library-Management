@@ -296,3 +296,13 @@
     max-width: 100px;
   }
 }
+
+/* Footer: keep auth layout full-height so the bar sits at the bottom of the viewport */
+body.auth-body {
+  min-height: 100vh;
+}
+
+body.auth-body .auth-page {
+  flex: 1 0 auto;
+  width: 100%;
+}

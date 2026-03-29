@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Program & session — GJ Library</title>
+  <title>Contact messages — GJ Library</title>
   <script src="js/theme-init.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,13 +28,13 @@
       <nav class="site-nav" aria-label="Main">
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="index.html#explore-books">Explore books</a></li>
+          <li><a href="index.html#explore-books">Explore</a></li>
           <li><a href="index.html#about">About</a></li>
           <li><a href="index.html#services">Services</a></li>
           <li><a href="contact.html">Contact</a></li>
           <li><a href="catalog.html">Catalog</a></li>
           <li data-gj-staff-only hidden><a href="students.html">Students</a></li>
-          <li data-gj-staff-only hidden><a href="contact-messages.html">Messages</a></li>
+          <li data-gj-staff-only hidden><a href="contact-messages.html" class="active">Messages</a></li>
         </ul>
       </nav>
       <div class="theme-switcher" role="group" aria-label="Color theme">
@@ -76,51 +76,84 @@
   </header>
 
   <main>
-    <div id="student-profile-gate" hidden>
-      <h1 class="page-title">Program & session</h1>
-      <p class="page-sub" id="student-profile-gate-msg">Checking access…</p>
-      <p class="page-sub"><a href="auth.html?portal=student&amp;redirect=student-profile.html">Student sign in</a> · <a href="index.html">Home</a></p>
+    <div id="contact-messages-gate" hidden>
+      <h1 class="page-title">Contact messages</h1>
+      <p class="page-sub" id="contact-messages-gate-msg">Checking access…</p>
+      <p class="page-sub"><a href="auth.html?portal=staff&amp;redirect=contact-messages.html">Staff sign in</a> · <a href="index.html">Home</a></p>
     </div>
 
-    <div id="student-profile-app" hidden>
-      <h1 class="page-title">Your program & session</h1>
-      <p class="page-sub">Program and admission year are <strong>optional</strong>. When you add them, session (e.g. <strong>2023-26</strong>) is derived from your program length. Library staff can also add or edit these on the Students page.</p>
-      <p id="student-profile-status" class="page-sub" style="margin-top:-1rem;font-size:0.9rem;"></p>
+    <div id="contact-messages-app" hidden>
+      <h1 class="page-title">Contact messages</h1>
+      <p class="page-sub">Submissions from the public <a href="contact.html">contact form</a>. Staff only.</p>
+      <p id="contact-messages-status" class="page-sub" style="margin-top:-1rem;font-size:0.9rem;"></p>
 
-      <form id="student-profile-form" class="student-profile-form" style="max-width:32rem;margin-top:1rem;">
-        <div class="form-error" id="student-profile-form-error" hidden></div>
-        <div class="form-field">
-          <label for="sp-full-name">Full name</label>
-          <input type="text" id="sp-full-name" name="full_name" autocomplete="name" maxlength="120" placeholder="As used for college records">
-        </div>
-        <div class="form-field">
-          <label for="sp-program">Program</label>
-          <select id="sp-program" name="program" aria-describedby="sp-program-hint">
-            <option value="">— Select program —</option>
-            <optgroup label="Regular courses">
-              <option value="I.A / I.Sc">I.A / I.Sc — 2 Years</option>
-              <option value="B. A. /B. Sc. /B. Com.">B. A. /B. Sc. /B. Com. — 3 Years</option>
-            </optgroup>
-            <optgroup label="Professional courses">
-              <option value="B.C.A">B.C.A — 3 Years</option>
-              <option value="B.B.M">B.B.M — 3 Years</option>
-              <option value="B.Sc ( IT )">B.Sc ( IT ) — 3 Years</option>
-              <option value="B.Lis">B.Lis — 1 Year</option>
-            </optgroup>
-          </select>
-          <p class="form-field-hint" id="sp-program-hint">Optional. Only official G.J. College programmes.</p>
-        </div>
-        <div class="form-field">
-          <label for="sp-year">Admission year</label>
-          <select id="sp-year" name="admission-year" aria-describedby="sp-session-preview">
-          </select>
-          <p class="form-field-hint" id="sp-session-preview" aria-live="polite"></p>
-          <p class="form-field-hint">Optional. The year you <strong>joined</strong> this course. Session uses your program’s length when both fields are set.</p>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" id="btn-student-profile-save">Save</button>
-        </div>
-      </form>
+      <div class="toolbar">
+        <button type="button" class="btn btn-ghost" id="btn-contact-messages-reload" title="Reload">Reload</button>
+      </div>
+
+      <div class="table-wrap contact-messages-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Date</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Subject</th>
+              <th scope="col">Preview</th>
+            </tr>
+          </thead>
+          <tbody id="contact-messages-rows">
+            <tr><td colspan="5">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="contact-msg-view-backdrop" role="dialog" aria-modal="true" aria-labelledby="contact-msg-view-subject" hidden>
+      <div class="modal modal-contact-msg-view">
+        <article class="contact-msg-mail" aria-label="Message from contact form">
+          <header class="contact-msg-mail-chrome">
+            <span class="contact-msg-mail-chrome-title">Incoming message</span>
+            <button type="button" class="contact-msg-mail-close" id="contact-msg-view-close" aria-label="Close message" title="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+          </header>
+
+          <h2 id="contact-msg-view-subject" class="contact-msg-view-subject">—</h2>
+
+          <div class="contact-msg-mail-from">
+            <div class="contact-msg-avatar" id="contact-msg-view-avatar" aria-hidden="true">?</div>
+            <div class="contact-msg-from-text">
+              <div class="contact-msg-from-name" id="contact-msg-view-sender-name">—</div>
+              <div class="contact-msg-from-email" id="contact-msg-view-email">—</div>
+            </div>
+            <time class="contact-msg-sent-date" id="contact-msg-view-date" datetime=""></time>
+          </div>
+
+          <!-- <div class="contact-msg-mail-routing" aria-label="Routing"> -->
+            <!-- <span class="contact-msg-routing-line"> -->
+              <!-- <span class="contact-msg-routing-k">To</span>
+              <span class="contact-msg-routing-v">GJ Library — website contact form</span>
+            </span>
+            <span class="contact-msg-routing-line contact-msg-routing-line-from">
+              <span class="contact-msg-routing-k">Reply-To</span> -->
+              <!-- <span class="contact-msg-routing-v" id="contact-msg-view-reply-to-line">—</span> -->
+            <!-- </span> -->
+          <!-- </div> -->
+
+          <div class="contact-msg-mail-paper">
+            <div id="contact-msg-view-body" class="contact-msg-view-body"></div>
+          </div>
+
+          <footer class="contact-msg-mail-footer">
+            <!-- <button type="button" class="btn btn-ghost" id="contact-msg-view-close-footer">Close</button> -->
+            <a class="btn btn-primary contact-msg-reply-btn" id="contact-msg-view-reply" href="#">
+              <svg class="contact-msg-reply-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+              Reply
+            </a>
+          </footer>
+        </article>
+      </div>
     </div>
   </main>
 
@@ -132,9 +165,8 @@
   <script src="js/supabase-config.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/auth-app-role.js"></script>
-  <script src="js/student-session.js"></script>
   <script src="js/header-profile.js"></script>
   <script src="js/main.js"></script>
-  <script src="js/student-profile.js"></script>
+  <script src="js/contact-messages-staff.js"></script>
 </body>
 </html>

@@ -75,7 +75,8 @@
         var year =
           b.publication_year != null && !isNaN(b.publication_year) ? String(b.publication_year) : "";
         var coverBlock = imgUrl
-          ? '<div class="explore-book-cover"><img src="' +
+          ? '<div class="explore-book-cover">' +
+            '<img class="explore-book-cover-img" src="' +
             escapeAttr(imgUrl) +
             '" alt="' +
             escapeAttr(b.title || "Book cover") +

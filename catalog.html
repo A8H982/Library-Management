@@ -13,8 +13,12 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="index.html" class="brand">
-      <span class="brand-mark">GJ</span>
+    <a href="index.html" class="brand" id="site-brand">
+      <span class="brand-mark brand-mark--guest" id="brand-mark" role="img">
+        <span class="brand-mark-fallback" aria-hidden="true">GJ</span>
+        <svg class="brand-mark-icon brand-mark-icon--staff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <svg class="brand-mark-icon brand-mark-icon--student" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </span>
       GJ Library
     </a>
     <div class="site-header-right">
@@ -24,12 +28,13 @@
       <nav class="site-nav" aria-label="Main">
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="index.html#explore-books">Explore books</a></li>
+          <li><a href="index.html#explore-books">Explore</a></li>
           <li><a href="index.html#about">About</a></li>
           <li><a href="index.html#services">Services</a></li>
           <li><a href="contact.html">Contact</a></li>
           <li><a href="catalog.html" class="active">Catalog</a></li>
           <li data-gj-staff-only hidden><a href="students.html">Students</a></li>
+          <li data-gj-staff-only hidden><a href="contact-messages.html">Messages</a></li>
         </ul>
       </nav>
       <div class="theme-switcher" role="group" aria-label="Color theme">
@@ -57,6 +62,7 @@
           <a href="catalog.html" class="profile-dropdown-item" id="profile-dropdown-catalog-link" role="menuitem" hidden>Library catalog</a>
           <a href="student-profile.html" class="profile-dropdown-item" id="profile-dropdown-student-course-link" role="menuitem" data-gj-student-only hidden>Program & session</a>
           <a href="students.html" class="profile-dropdown-item" id="profile-dropdown-students-link" role="menuitem" data-gj-staff-only hidden>Manage students</a>
+          <a href="contact-messages.html" class="profile-dropdown-item" id="profile-dropdown-contact-messages-link" role="menuitem" data-gj-staff-only hidden>Contact messages</a>
           <div id="profile-dropdown-signin" class="profile-dropdown-actions">
             <a href="auth.html?portal=student" class="btn btn-primary btn-block btn-sm">Student sign in</a>
             <a href="auth.html?portal=staff" class="btn btn-ghost btn-block btn-sm" style="margin-top:0.35rem">Staff sign in</a>
@@ -71,16 +77,25 @@
 
   <main>
     <h1 class="page-title">Library catalog</h1>
-    <p class="page-sub">Browse the table below. Students and guests get a simple view with Buy; signed-in staff get full edit tools (Add book, row details).</p>
+    <p class="page-sub">Use the search field to filter by title, author, accession, or shelf. Students and guests open a title to buy or request it; staff use Add book and row details to manage the catalog.</p>
     <p id="catalog-load-status" class="page-sub" style="margin-top:-1rem;font-size:0.9rem;"></p>
 
-    <div class="toolbar catalog-toolbar">
-      <button type="button" class="btn btn-ghost" id="btn-reload-catalog" title="Reload list">Reload</button>
-      <div class="catalog-toolbar-staff" id="catalog-toolbar-staff" hidden>
-        <button type="button" class="btn btn-primary" id="btn-open-add-book">Add book</button>
-        <button type="button" class="btn btn-ghost btn-danger" id="btn-delete-all-books" title="Permanently remove every catalog row">
-          Delete all books
-        </button>
+    <div class="catalog-controls">
+      <div class="catalog-search-wrap">
+        <svg class="catalog-search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <input type="search" id="catalog-search" class="catalog-search-input" placeholder="Search title, author, accession, ISBN, shelf…" autocomplete="off" aria-label="Search catalog">
+      </div>
+      <div class="toolbar catalog-toolbar">
+        <button type="button" class="btn btn-ghost" id="btn-reload-catalog" title="Reload list">Reload</button>
+        <div class="catalog-toolbar-staff" id="catalog-toolbar-staff" hidden>
+          <button type="button" class="btn btn-primary" id="btn-open-add-book">Add book</button>
+          <button type="button" class="btn btn-ghost btn-danger" id="btn-delete-all-books" title="Permanently remove every catalog row">
+            Delete all books
+          </button>
+        </div>
       </div>
     </div>
 
@@ -111,54 +126,60 @@
     </div>
 
     <div class="modal-backdrop" id="book-detail-modal" role="dialog" aria-modal="true" aria-labelledby="detail-book-title" hidden>
-      <div class="modal modal-wide">
+      <div class="modal modal-book-detail">
         <h2 id="detail-book-title">Book details</h2>
         <p class="detail-meta" id="detail-meta"></p>
         <div class="form-error" id="detail-form-error" hidden></div>
         <form id="detail-form" novalidate>
-          <div class="form-field detail-cover-block" id="detail-cover-staff-block">
-            <label>Cover</label>
-            <div class="detail-cover-row">
-              <img id="detail-cover-preview" class="detail-cover-preview" alt="" width="120" height="168" hidden>
-              <div class="detail-cover-fields">
-                <input type="file" id="detail-cover" accept="image/jpeg,image/png,image/webp">
-                <label class="detail-cover-clear-label">
-                  <input type="checkbox" id="detail-cover-clear"> Remove cover image
-                </label>
+          <div class="book-detail-form-grid">
+            <div class="book-detail-form-cover">
+              <div class="form-field detail-cover-block" id="detail-cover-staff-block">
+                <label>Cover</label>
+                <div class="detail-cover-row">
+                  <img id="detail-cover-preview" class="detail-cover-preview" alt="" width="120" height="168" hidden>
+                  <div class="detail-cover-fields">
+                    <input type="file" id="detail-cover" accept="image/jpeg,image/png,image/webp">
+                    <label class="detail-cover-clear-label">
+                      <input type="checkbox" id="detail-cover-clear"> Remove cover image
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="book-detail-form-fields">
+              <div class="form-field book-detail-field-full">
+                <label for="detail-title">Title</label>
+                <input type="text" id="detail-title" autocomplete="off">
+              </div>
+              <div class="form-field">
+                <label for="detail-author">Author</label>
+                <input type="text" id="detail-author" autocomplete="off">
+              </div>
+              <div class="form-field" id="detail-isbn-wrap" hidden>
+                <label for="detail-isbn">ISBN</label>
+                <input type="text" id="detail-isbn" placeholder="978-…" autocomplete="off">
+              </div>
+              <div class="form-field" id="detail-shelf-wrap" hidden>
+                <label for="detail-shelf">Shelf / location</label>
+                <input type="text" id="detail-shelf" placeholder="e.g. Stack A-12">
+              </div>
+              <div class="form-field" id="detail-year-wrap" hidden>
+                <label for="detail-year">Publication year</label>
+                <input type="number" id="detail-year" min="1000" max="2100" step="1" placeholder="e.g. 2018">
+              </div>
+              <div class="form-field book-detail-field-full" id="detail-status-wrap" hidden>
+                <label for="detail-status">Status</label>
+                <select id="detail-status">
+                  <option value="available">Available</option>
+                  <option value="on_loan">On loan</option>
+                  <option value="reference">Reference only</option>
+                  <option value="lost">Lost</option>
+                  <option value="repair">In repair</option>
+                </select>
               </div>
             </div>
           </div>
-          <div class="form-field">
-            <label for="detail-title">Title</label>
-            <input type="text" id="detail-title" autocomplete="off">
-          </div>
-          <div class="form-field">
-            <label for="detail-author">Author</label>
-            <input type="text" id="detail-author" autocomplete="off">
-          </div>
-          <div class="form-field" id="detail-isbn-wrap" hidden>
-            <label for="detail-isbn">ISBN</label>
-            <input type="text" id="detail-isbn" placeholder="978-…" autocomplete="off">
-          </div>
-          <div class="form-field" id="detail-shelf-wrap" hidden>
-            <label for="detail-shelf">Shelf / location</label>
-            <input type="text" id="detail-shelf" placeholder="e.g. Stack A-12">
-          </div>
-          <div class="form-field" id="detail-year-wrap" hidden>
-            <label for="detail-year">Publication year</label>
-            <input type="number" id="detail-year" min="1000" max="2100" step="1" placeholder="e.g. 2018">
-          </div>
-          <div class="form-field" id="detail-status-wrap" hidden>
-            <label for="detail-status">Status</label>
-            <select id="detail-status">
-              <option value="available">Available</option>
-              <option value="on_loan">On loan</option>
-              <option value="reference">Reference only</option>
-              <option value="lost">Lost</option>
-              <option value="repair">In repair</option>
-            </select>
-          </div>
-          <div class="form-actions" id="detail-staff-actions" style="justify-content: space-between; flex-wrap: wrap;">
+          <div class="form-actions book-detail-form-actions" id="detail-staff-actions" style="justify-content: space-between; flex-wrap: wrap;">
             <button type="button" class="btn btn-ghost btn-danger" id="btn-delete-book">Remove from catalog</button>
             <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
               <button type="button" class="btn btn-ghost" id="btn-close-detail">Close</button>
@@ -190,8 +211,8 @@
       </div>
     </div>
 
-    <div class="table-wrap">
-      <table>
+    <div class="table-wrap catalog-table-wrap">
+      <table class="catalog-table">
         <thead>
           <tr>
             <th>Cover</th>
@@ -213,8 +234,8 @@
   </main>
 
   <footer class="site-footer">
-    <div><strong>GJ Library</strong> · Rambagh, Bihta, Patna</div>
-    <div><a href="index.html">Home</a> · <a href="contact.html">Contact</a></div>
+    <div><strong>GJ Library</strong> · G.J. College · Rambagh, Bihta, Patna</div>
+    <div><a href="index.html">Home</a> · <a href="catalog.html">Catalog</a> · <a href="contact.html">Contact</a></div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="js/supabase-config.js"></script>

@@ -13,8 +13,12 @@
 </head>
 <body class="page-contact page-library">
   <header class="site-header">
-    <a href="index.html" class="brand">
-      <span class="brand-mark">GJ</span>
+    <a href="index.html" class="brand" id="site-brand">
+      <span class="brand-mark brand-mark--guest" id="brand-mark" role="img">
+        <span class="brand-mark-fallback" aria-hidden="true">GJ</span>
+        <svg class="brand-mark-icon brand-mark-icon--staff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <svg class="brand-mark-icon brand-mark-icon--student" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </span>
       GJ Library
     </a>
     <div class="site-header-right">
@@ -24,12 +28,13 @@
       <nav class="site-nav" aria-label="Main">
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="index.html#explore-books">Explore books</a></li>
+          <li><a href="index.html#explore-books">Explore</a></li>
           <li><a href="index.html#about">About</a></li>
           <li><a href="index.html#services">Services</a></li>
           <li><a href="contact.html" class="active">Contact</a></li>
           <li><a href="catalog.html">Catalog</a></li>
           <li data-gj-staff-only hidden><a href="students.html">Students</a></li>
+          <li data-gj-staff-only hidden><a href="contact-messages.html">Messages</a></li>
         </ul>
       </nav>
       <div class="theme-switcher" role="group" aria-label="Color theme">
@@ -57,6 +62,7 @@
           <a href="catalog.html" class="profile-dropdown-item" id="profile-dropdown-catalog-link" role="menuitem" hidden>Library catalog</a>
           <a href="student-profile.html" class="profile-dropdown-item" id="profile-dropdown-student-course-link" role="menuitem" data-gj-student-only hidden>Program & session</a>
           <a href="students.html" class="profile-dropdown-item" id="profile-dropdown-students-link" role="menuitem" data-gj-staff-only hidden>Manage students</a>
+          <a href="contact-messages.html" class="profile-dropdown-item" id="profile-dropdown-contact-messages-link" role="menuitem" data-gj-staff-only hidden>Contact messages</a>
           <div id="profile-dropdown-signin" class="profile-dropdown-actions">
             <a href="auth.html?portal=student" class="btn btn-primary btn-block btn-sm">Student sign in</a>
             <a href="auth.html?portal=staff" class="btn btn-ghost btn-block btn-sm" style="margin-top:0.35rem">Staff sign in</a>
@@ -71,18 +77,17 @@
 
   <main class="contact-page-main">
     <h1 class="page-title">Contact G.J. College</h1>
-    <p class="page-sub">Campus location, key offices, and the library — plus a form to reach us by email.</p>
+    <p class="page-sub">Campus location, key offices, and the library — plus a form to reach us by email. The same content and form are on the <a href="index.html#contact">home page</a> under <strong>Visit &amp; contact</strong>.</p>
 
     <section class="college-contact-overview" aria-labelledby="college-campus-title">
       <h2 id="college-campus-title" class="contact-section-title">Campus</h2>
       <div class="college-contact-card">
-        <p class="college-contact-lead"><strong>G.J. College</strong> (Gajadhar Jha College)</p>
+        <p class="college-contact-lead"><strong>G.J. College</strong>  (Gadadhar Acharya Janta College)</p>
         <p>Rambagh, Bihta, Patna, Bihar, India</p>
         <p><strong>General enquiries</strong><br>
-          <span class="college-contact-placeholder">Phone: — (add official college number)</span><br>
-          <span class="college-contact-placeholder">Email: — (add official college email)</span>
+          <span class="college-contact-placeholder">Phone: — +91 9934615246</span><br>
+          <span class="college-contact-placeholder">Email: — gjcollagebihta@gmail.com</span>
         </p>
-        <p class="college-contact-note">Replace placeholder phone and email with your official college details when published.</p>
       </div>
     </section>
 
@@ -92,17 +97,17 @@
         <article class="card college-office-card">
           <h3>Principal’s office</h3>
           <p>Academic leadership, affiliations, and institutional matters.</p>
-          <p class="college-contact-placeholder">Phone / Email — add when final</p>
+          <p class="college-contact-placeholder">Prof. Dr. Arvind Kr Singh</p>
         </article>
         <article class="card college-office-card">
           <h3>Registrar / admission</h3>
           <p>Enrollment, transcripts, certificates, and exam-related queries.</p>
-          <p class="college-contact-placeholder">Phone / Email — add when final</p>
+          <p class="college-contact-placeholder">+91 9525425737</p>
         </article>
         <article class="card college-office-card">
           <h3>Administration</h3>
           <p>Accounts, facilities, and day-to-day college operations.</p>
-          <p class="college-contact-placeholder">Phone / Email — add when final</p>
+          <p class="college-contact-placeholder">+91 9608149429</p>
         </article>
       </div>
     </section>
@@ -120,13 +125,15 @@
       <h2 id="contact-form-title" class="contact-section-title">Send a message</h2>
       <p class="home-section-text" style="margin-bottom: 1rem;">Use this form for the library or general college enquiries. We will respond when we can during working hours.</p>
       <form id="contact-form" class="contact-form" novalidate>
-        <div class="form-field">
-          <label for="contact-name">Name</label>
-          <input type="text" id="contact-name" name="name" autocomplete="name" required maxlength="120" placeholder="Your name">
-        </div>
-        <div class="form-field">
-          <label for="contact-email">Email</label>
-          <input type="email" id="contact-email" name="email" autocomplete="email" required placeholder="you@example.com">
+        <div class="contact-form-row">
+          <div class="form-field">
+            <label for="contact-name">Name</label>
+            <input type="text" id="contact-name" name="name" autocomplete="name" required maxlength="120" placeholder="Your name">
+          </div>
+          <div class="form-field">
+            <label for="contact-email">Email</label>
+            <input type="email" id="contact-email" name="email" autocomplete="email" required placeholder="you@example.com">
+          </div>
         </div>
         <div class="form-field">
           <label for="contact-subject">Subject <span class="contact-optional">(optional)</span></label>

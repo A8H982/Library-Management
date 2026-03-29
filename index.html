@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="GJ Library — lending, reading room, and digital resources at Rambagh, Bihta, Patna.">
-  <title>GJ Library — Rambagh, Bihta, Patna</title>
+  <title>G.J Library</title>
   <script src="js/theme-init.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,9 +13,13 @@
 </head>
 <body class="page-home page-library">
   <header class="site-header">
-    <a href="index.html" class="brand">
-      <span class="brand-mark">GJ</span>
-      GJ Library
+    <a href="index.html" class="brand" id="site-brand">
+      <span class="brand-mark brand-mark--guest" id="brand-mark" role="img">
+        <span class="brand-mark-fallback" aria-hidden="true">GJ</span>
+        <svg class="brand-mark-icon brand-mark-icon--staff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <svg class="brand-mark-icon brand-mark-icon--student" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </span>
+      G.J Library
     </a>
     <div class="site-header-right">
       <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false">
@@ -23,13 +27,14 @@
       </button>
       <nav class="site-nav" aria-label="Main">
         <ul>
-          <li><a href="index.html" class="active">Home</a></li>
-          <li><a href="#explore-books">Explore books</a></li>
+          <li><a href="#home-hero" class="active">Home</a></li>
+          <li><a href="#explore-books">Explore</a></li>
           <li><a href="#about">About</a></li>
           <li><a href="#services">Services</a></li>
-          <li><a href="contact.html">Contact</a></li>
+          <li><a href="#contact">Contact</a></li>
           <li><a href="catalog.html">Catalog</a></li>
           <li data-gj-staff-only hidden><a href="students.html">Students</a></li>
+          <li data-gj-staff-only hidden><a href="contact-messages.html">Messages</a></li>
         </ul>
       </nav>
       <div class="theme-switcher" role="group" aria-label="Color theme">
@@ -57,6 +62,7 @@
           <a href="catalog.html" class="profile-dropdown-item" id="profile-dropdown-catalog-link" role="menuitem" hidden>Library catalog</a>
           <a href="student-profile.html" class="profile-dropdown-item" id="profile-dropdown-student-course-link" role="menuitem" data-gj-student-only hidden>Program & session</a>
           <a href="students.html" class="profile-dropdown-item" id="profile-dropdown-students-link" role="menuitem" data-gj-staff-only hidden>Manage students</a>
+          <a href="contact-messages.html" class="profile-dropdown-item" id="profile-dropdown-contact-messages-link" role="menuitem" data-gj-staff-only hidden>Contact messages</a>
           <div id="profile-dropdown-signin" class="profile-dropdown-actions">
             <a href="auth.html?portal=student" class="btn btn-primary btn-block btn-sm">Student sign in</a>
             <a href="auth.html?portal=staff" class="btn btn-ghost btn-block btn-sm" style="margin-top:0.35rem">Staff sign in</a>
@@ -70,48 +76,103 @@
   </header>
 
   <main>
-    <section class="home-hero" aria-labelledby="home-hero-title">
-      <h1 id="home-hero-title" class="home-hero-title">GJ Library</h1>
-      <p class="home-hero-lead">Your campus hub for books, quiet study, and trusted information services at GJ College.</p>
-      <p class="home-hero-location">Rambagh · Bihta · Patna</p>
-      <div class="home-hero-actions">
-        <!-- <a href="auth.html?portal=student" class="btn btn-primary">Student sign in</a> -->
-        <!-- <a href="auth.html?portal=staff" class="btn btn-ghost">Staff sign in</a> -->
-        <a href="catalog.html" class="btn btn-ghost">Browse catalog</a>
+    <section id="home-hero" class="home-hero" aria-labelledby="home-hero-title">
+      <div class="home-hero-inner">
+        <p class="home-hero-kicker">A constituent unit of Patliputra University</p>
+        <h1 id="home-hero-title" class="home-hero-title">G.J. Library</h1>
+        <p class="home-hero-lead">Your campus hub for books, quiet study, and trusted information services—built for students and faculty every day.</p>
+        <p class="home-hero-location">
+          <span class="home-hero-location-dot" aria-hidden="true"></span>
+          Rambagh · Bihta · Patna
+        </p>
+        <div class="home-hero-actions">
+          <a href="catalog.html" class="btn btn-primary">Browse catalog</a>
+          <a href="#explore-books" class="btn btn-ghost">Explore books</a>
+        </div>
+        <nav class="home-hero-quick" aria-label="Shortcuts">
+          <a href="#about">About</a>
+          <span class="home-hero-quick-sep" aria-hidden="true"></span>
+          <a href="#services">Services</a>
+          <span class="home-hero-quick-sep" aria-hidden="true"></span>
+          <a href="#contact">Contact</a>
+        </nav>
       </div>
     </section>
 
-    <section id="explore-books" class="home-section home-explore-books">
-      <h2 class="home-section-title">Explore books</h2>
-      <p class="home-section-text" style="margin-bottom: 1.25rem;">A selection from our catalog. Cover images are stored in Supabase Storage; details come from the library database.</p>
-      <p id="explore-books-status" class="page-sub" style="margin-top: -0.5rem; font-size: 0.9rem"></p>
+    <section id="explore-books" class="home-section home-section--surface home-explore-books">
+      <header class="home-section-head">
+        <p class="home-section-kicker">From the stacks</p>
+        <h2 class="home-section-title">Explore books</h2>
+        <p class="home-section-lead">A live selection from our catalog—covers and details stay in sync with the library database.</p>
+      </header>
+      <p id="explore-books-status" class="home-explore-status page-sub"></p>
       <div id="explore-books-grid" class="explore-books-grid"></div>
     </section>
 
     <section id="about" class="home-section">
-      <h2 class="home-section-title">About the library</h2>
-      <p class="home-section-text">
-        The library supports students and faculty with lending, a reading room, and reference collections in arts, sciences, and regional studies.
-        Staff maintain the catalog, track copies on loan, and help readers find what they need.
-      </p>
+      <header class="home-section-head">
+        <p class="home-section-kicker">Who we are</p>
+        <h2 class="home-section-title">About the library</h2>
+      </header>
+      <div class="home-about-panel">
+        <p class="home-section-text">
+          The GJ Library is the college’s main learning commons for students and faculty. We support coursework and independent reading with a lending collection, a quiet reading area, and reference holdings across the arts, sciences, commerce, and regional studies—including Bihar and Patna-related titles where available.
+        </p>
+        <p class="home-section-text">
+          Our mission is simple: help every reader find the right book at the right time. Library staff maintain accession records, shelf locations, and loan status so that borrowed copies are tracked fairly and returned copies go back on the shelf quickly. We also assist with locating alternative editions, suggesting related authors, and navigating the online catalog when you search from home or the campus Wi‑Fi.
+        </p>
+        <p class="home-section-text">
+          Beyond textbooks, the library encourages wider reading—fiction, essays, general knowledge, and competitive-exam material where stocked—so students can build habits that last beyond a single semester. Faculty may consult us for course reserves, reading lists, and guidance on what the library can order or hold for class use.
+        </p>
+        <p class="home-section-text home-section-text--last">
+          The library is located on campus at Rambagh, Bihta, Patna. Hours and desk availability are listed in the contact section below; for special needs (extended reference, project work, or accessibility), please speak to the librarian during desk hours or use the message form there.
+        </p>
+      </div>
     </section>
 
-    <section id="services" class="home-section">
-      <h2 class="home-section-title">Services</h2>
+    <section id="services" class="home-section home-section--surface">
+      <header class="home-section-head">
+        <p class="home-section-kicker">What we offer</p>
+        <h2 class="home-section-title">Services</h2>
+        <p class="home-section-lead">Borrowing, study space, and help finding information—backed by a catalog that reflects what is on the shelf, on loan, or in reference.</p>
+      </header>
       <div class="home-programs">
-        <article class="card home-program-card">
+        <article class="card home-program-card home-program-card--icon">
+          <div class="home-program-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          </div>
           <h3>Borrowing &amp; returns</h3>
-          <p>Issue and receive books with clear due dates. Staff use the online catalog to update availability and shelf locations.</p>
+          <p>Issue and return books at the circulation desk with clear due dates and renewal rules as announced each term. Overdue reminders help keep the collection circulating fairly. Staff record loans and returns in the system and update the catalog so availability and shelf locations stay accurate.</p>
         </article>
-        <article class="card home-program-card">
+        <article class="card home-program-card home-program-card--icon">
+          <div class="home-program-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20h12"/><path d="M12 4v12"/><rect x="4" y="4" width="16" height="6" rx="1"/></svg>
+          </div>
           <h3>Reading space</h3>
-          <p>A calm area for individual study and reference use, with newspapers and course-related reserves when available.</p>
+          <p>A calm area for individual study, silent reading, and short reference sessions. Newspapers and magazines may be available for same-day reading in the library. Course-related reserves—where faculty have placed limited copies for in-library use—are handled according to staff instructions at the desk.</p>
+        </article>
+        <article class="card home-program-card home-program-card--icon">
+          <div class="home-program-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6"/><path d="M8 11h6"/></svg>
+          </div>
+          <h3>Reference &amp; information help</h3>
+          <p>Ask for help locating a title by author, subject, or accession number, or for suggestions when you are starting a topic. Staff can guide you to the right stack, the catalog search, and basic reference sources. For deep research, we can point you to suitable books and how to use them alongside your syllabus.</p>
+        </article>
+        <article class="card home-program-card home-program-card--icon">
+          <div class="home-program-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+          </div>
+          <h3>Online catalog &amp; discovery</h3>
+          <p>Browse the library catalog from this website to see titles, authors, ISBNs, shelf locations, and copy status before you visit. Cover images and details are maintained by staff so you can recognize editions and plan which books to borrow or consult during your next trip to the campus.</p>
         </article>
       </div>
     </section>
 
-    <section id="students" class="home-section" data-gj-staff-only hidden>
-      <h2 class="home-section-title">Student directory</h2>
+    <section id="students" class="home-section home-section--surface" data-gj-staff-only hidden>
+      <header class="home-section-head">
+        <p class="home-section-kicker">Staff tools</p>
+        <h2 class="home-section-title">Student directory</h2>
+      </header>
       <p class="home-section-text">
         Staff choose the <strong>program</strong> (duration is set automatically), then <strong>admission year</strong>.
         Session shows as a range like <strong>2023-26</strong> (admission + passout per course length). The admission year is stored in Supabase.
@@ -122,18 +183,91 @@
     </section>
 
     <section id="contact" class="home-section home-section-contact">
-      <h2 class="home-section-title">Visit &amp; contact</h2>
-      <p class="home-section-text" style="margin-bottom: 1rem;">G.J. College and the campus library are at Rambagh, Bihta, Patna. The contact page lists campus address, key offices, library hours, and a form to send a message.</p>
-      <div class="home-contact-cta">
-        <a href="contact.html" class="btn btn-primary">College &amp; library contact</a>
-        <p class="home-contact-note">Library desk: typically Monday–Saturday, 10:00 a.m.–5:00 p.m. (confirm with the college office.)</p>
+      <header class="home-section-head">
+        <p class="home-section-kicker">Plan your visit</p>
+        <h2 class="home-section-title">Visit &amp; contact</h2>
+        <p class="home-section-lead">Campus location, key offices, the library, and a form to reach us—same details as our <a href="contact.html">standalone contact page</a>.</p>
+      </header>
+
+      <div class="home-contact-embed">
+        <section class="college-contact-overview" aria-labelledby="home-college-campus-title">
+          <h2 id="home-college-campus-title" class="contact-section-title">Campus</h2>
+          <div class="college-contact-card">
+            <p class="college-contact-lead"><strong>G.J. College</strong>  (Gadadhar Acharya Janta College)</p>
+            <p>Rambagh, Bihta, Patna, Bihar, India</p>
+            <p><strong>General enquiries</strong><br>
+              <span class="college-contact-placeholder">Phone: — +91 9934615246</span><br>
+              <span class="college-contact-placeholder">Email: — gjcollagebihta@gmail.com</span>
+            </p>
+          </div>
+        </section>
+
+        <section class="college-contact-grid" aria-labelledby="home-offices-title">
+          <h2 id="home-offices-title" class="contact-section-title">Key offices</h2>
+          <div class="college-contact-cards">
+            <article class="card college-office-card">
+              <h3>Principal’s office</h3>
+              <p>Academic leadership, affiliations, and institutional matters.</p>
+              <p class="college-contact-placeholder">Prof. Dr. Arvind Kr Singh</p>
+            </article>
+            <article class="card college-office-card">
+              <h3>Registrar / admission</h3>
+              <p>Enrollment, transcripts, certificates, and exam-related queries.</p>
+              <p class="college-contact-placeholder">+91 9525425737</p>
+            </article>
+            <article class="card college-office-card">
+              <h3>Administration</h3>
+              <p>Accounts, facilities, and day-to-day college operations.</p>
+              <p class="college-contact-placeholder">+91 9608149429</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="college-library-section" aria-labelledby="home-library-contact-title">
+          <h2 id="home-library-contact-title" class="contact-section-title">GJ College Library</h2>
+          <div class="college-contact-card">
+            <p class="college-contact-lead"><strong>Library address</strong><br>GJ College Library, same campus as above.</p>
+            <p><strong>Typical desk hours</strong><br>Monday–Saturday, 10:00 a.m.–5:00 p.m. (confirm with the college office.)</p>
+            <p><strong>Online catalog</strong><br><a href="catalog.html">Browse and search the catalog</a> — staff and students use the library portal for borrowing and holdings.</p>
+          </div>
+        </section>
+
+        <section id="message" class="contact-form-section" aria-labelledby="home-contact-form-title">
+          <h2 id="home-contact-form-title" class="contact-section-title">Send a message</h2>
+          <p class="home-section-text" style="margin-bottom: 1rem;">Use this form for the library or general college enquiries. We will respond when we can during working hours.</p>
+          <form id="contact-form" class="contact-form" novalidate>
+            <div class="contact-form-row">
+              <div class="form-field">
+                <label for="contact-name">Name</label>
+                <input type="text" id="contact-name" name="name" autocomplete="name" required maxlength="120" placeholder="Your name">
+              </div>
+              <div class="form-field">
+                <label for="contact-email">Email</label>
+                <input type="email" id="contact-email" name="email" autocomplete="email" required placeholder="you@example.com">
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="contact-subject">Subject <span class="contact-optional">(optional)</span></label>
+              <input type="text" id="contact-subject" name="subject" maxlength="200" placeholder="e.g. Library membership, admission enquiry">
+            </div>
+            <div class="form-field">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" name="message" required rows="5" maxlength="4000" placeholder="How can we help?"></textarea>
+            </div>
+            <div class="form-error" id="contact-form-error" hidden></div>
+            <p class="contact-form-success" id="contact-form-success" hidden role="status"></p>
+            <div class="form-actions contact-form-actions">
+              <button type="submit" class="btn btn-primary" id="contact-submit">Send message</button>
+            </div>
+          </form>
+        </section>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div><strong>GJ Library</strong> · Rambagh, Bihta, Patna</div>
-    <div><a href="#explore-books">Explore books</a> · <a href="catalog.html">Catalog</a> · <a href="contact.html">Contact</a></div>
+    <div><strong>GJ Library</strong> · G.J. College · Rambagh, Bihta, Patna</div>
+    <div><a href="#explore-books">Explore books</a> · <a href="catalog.html">Catalog</a> · <a href="#contact">Contact</a></div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="js/supabase-config.js"></script>
@@ -144,5 +278,6 @@
   <script src="js/sign-in-required-dialog.js"></script>
   <script src="js/book-buy-booking.js"></script>
   <script src="js/explore-books.js"></script>
+  <script src="js/contact-form.js"></script>
 </body>
 </html>

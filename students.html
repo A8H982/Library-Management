@@ -13,8 +13,12 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="index.html" class="brand">
-      <span class="brand-mark">GJ</span>
+    <a href="index.html" class="brand" id="site-brand">
+      <span class="brand-mark brand-mark--guest" id="brand-mark" role="img">
+        <span class="brand-mark-fallback" aria-hidden="true">GJ</span>
+        <svg class="brand-mark-icon brand-mark-icon--staff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <svg class="brand-mark-icon brand-mark-icon--student" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </span>
       GJ Library
     </a>
     <div class="site-header-right">
@@ -24,12 +28,13 @@
       <nav class="site-nav" aria-label="Main">
         <ul>
           <li><a href="index.html">Home</a></li>
-          <li><a href="index.html#explore-books">Explore books</a></li>
+          <li><a href="index.html#explore-books">Explore</a></li>
           <li><a href="index.html#about">About</a></li>
           <li><a href="index.html#services">Services</a></li>
           <li><a href="contact.html">Contact</a></li>
           <li><a href="catalog.html">Catalog</a></li>
           <li><a href="students.html" class="active">Students</a></li>
+          <li data-gj-staff-only hidden><a href="contact-messages.html">Messages</a></li>
         </ul>
       </nav>
       <div class="theme-switcher" role="group" aria-label="Color theme">
@@ -57,6 +62,7 @@
           <a href="catalog.html" class="profile-dropdown-item" id="profile-dropdown-catalog-link" role="menuitem" hidden>Library catalog</a>
           <a href="student-profile.html" class="profile-dropdown-item" id="profile-dropdown-student-course-link" role="menuitem" data-gj-student-only hidden>Program & session</a>
           <a href="students.html" class="profile-dropdown-item" id="profile-dropdown-students-link" role="menuitem" data-gj-staff-only hidden>Manage students</a>
+          <a href="contact-messages.html" class="profile-dropdown-item" id="profile-dropdown-contact-messages-link" role="menuitem" data-gj-staff-only hidden>Contact messages</a>
           <div id="profile-dropdown-signin" class="profile-dropdown-actions">
             <a href="auth.html?portal=student" class="btn btn-primary btn-block btn-sm">Student sign in</a>
             <a href="auth.html?portal=staff" class="btn btn-ghost btn-block btn-sm" style="margin-top:0.35rem">Staff sign in</a>
@@ -163,7 +169,7 @@
   </main>
 
   <footer class="site-footer">
-    <div><strong>GJ Library</strong> · Rambagh, Bihta, Patna</div>
+    <div><strong>GJ Library</strong> · G.J. College · Rambagh, Bihta, Patna</div>
     <div><a href="index.html">Home</a> · <a href="catalog.html">Catalog</a> · <a href="contact.html">Contact</a></div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>

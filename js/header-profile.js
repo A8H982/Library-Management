@@ -158,6 +158,38 @@
     systemMq: null,
   };
 
+  /** Navbar brand square: guest = GJ, student = book icon, staff = shield (authority). */
+  function syncBrandAuthorityMark() {
+    var mark = document.getElementById("brand-mark");
+    if (!mark) return;
+    var session = state.session;
+    var staff =
+      !!session && typeof window.gjIsStaffFromSession === "function" && window.gjIsStaffFromSession(session);
+    var student =
+      !!session && typeof window.gjIsStudentFromSession === "function" && window.gjIsStudentFromSession(session);
+    mark.classList.remove("brand-mark--guest", "brand-mark--student", "brand-mark--staff");
+    if (staff) {
+      mark.classList.add("brand-mark--staff");
+      mark.setAttribute("title", "Signed in as library staff");
+      mark.setAttribute("aria-label", "Staff session — library authority");
+    } else if (student) {
+      mark.classList.add("brand-mark--student");
+      mark.setAttribute("title", "Signed in as student");
+      mark.setAttribute("aria-label", "Student session");
+    } else {
+      mark.classList.add("brand-mark--guest");
+      mark.setAttribute("title", "Not signed in — browse as guest");
+      mark.setAttribute("aria-label", "Guest — not signed in");
+    }
+    var siteBrand = document.getElementById("site-brand");
+    if (siteBrand) {
+      siteBrand.setAttribute(
+        "aria-label",
+        staff ? "GJ Library home — staff account" : student ? "GJ Library home — student account" : "GJ Library home"
+      );
+    }
+  }
+
   function applyRoleNav() {
     var path = window.location.pathname || "";
     var staff =
@@ -166,9 +198,12 @@
       !!state.session && typeof window.gjIsStudentFromSession === "function" && window.gjIsStudentFromSession(state.session);
     var onStudentsPage = /students\.html/i.test(path);
     var onStudentProfilePage = /student-profile\.html/i.test(path);
+    var onContactMessagesPage = /contact-messages\.html/i.test(path);
     document.querySelectorAll("[data-gj-staff-only]").forEach(function (el) {
       if (el.id === "profile-dropdown-students-link") {
         el.hidden = !staff || onStudentsPage;
+      } else if (el.id === "profile-dropdown-contact-messages-link") {
+        el.hidden = !staff || onContactMessagesPage;
       } else {
         el.hidden = !staff;
       }
@@ -180,6 +215,7 @@
         el.hidden = !student;
       }
     });
+    syncBrandAuthorityMark();
   }
 
   /** Header label: manual name first, then email when signed in, else Guest. */
@@ -258,6 +294,17 @@
     else openDropdown();
   }
 
+  function setProfileModalBodyLock(lock) {
+    var c = "gj-profile-modal-open";
+    if (lock) {
+      document.documentElement.classList.add(c);
+      document.body.classList.add(c);
+    } else {
+      document.documentElement.classList.remove(c);
+      document.body.classList.remove(c);
+    }
+  }
+
   function openEditModal() {
     ensureModal();
     var modal = document.getElementById("profile-edit-modal");
@@ -273,6 +320,7 @@
     }
     if (modal) {
       modal.hidden = false;
+      setProfileModalBodyLock(true);
       requestAnimationFrame(function () {
         modal.classList.add("is-open");
       });
@@ -283,6 +331,7 @@
 
   function closeEditModal() {
     revokeAvatarPreviewObjectUrl();
+    setProfileModalBodyLock(false);
     var modal = document.getElementById("profile-edit-modal");
     if (!modal) return;
     modal.classList.remove("is-open");
@@ -474,7 +523,17 @@
   function init() {
     initThemeControls();
 
-    if (!document.getElementById("profile-menu-trigger")) return;
+    if (!document.getElementById("profile-menu-trigger")) {
+      if (document.getElementById("brand-mark")) {
+        refreshSessionFromSupabase();
+        if (window.gjSupabase) {
+          window.gjSupabase.auth.onAuthStateChange(function () {
+            refreshSessionFromSupabase();
+          });
+        }
+      }
+      return;
+    }
 
     var tr = document.getElementById("profile-menu-trigger");
     if (tr) {
